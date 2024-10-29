@@ -17,7 +17,8 @@ class AppRouter {
   static const start = (name: 'start', path: '/');
   static const login = (name: 'login', path: '/login');
   static const main = (name: 'main', path: '/main');
-  static const customer = (name: 'customer', path: '/customer');
+  static const customers = (name: 'customers', path: '/customers');
+  static const customerEditor = (name: 'customerEditor', path: '/customers/customerEditor/:customerId');
   static const invoice = (name: 'invoice', path: '/invoice');
   static const payment = (name: 'payment', path: '/payment');
   static const manageCashing = (name: 'manageCashing', path: '/manageCashing');
@@ -46,10 +47,19 @@ class AppRouter {
                   builder: (context, state) => DashboardScreen(),
                 ),
                 GoRoute(
-                  name: customer.name,
-                  path: customer.path,
-                  builder: (context, state) => CustomersScreen(),
+              name: customers.name,
+              path: customers.path,
+              builder: (context, state) => const CustomersScreen(),
+              routes: [
+                GoRoute(
+                  name: customerEditor.name,
+                  path: customerEditor.path,
+                  builder: (context, state) {
+                    final customerId = state.pathParameters['customerId'];
+                    return CustomerEditor(customerId: customerId);
+                  },
                 ),
+              ]),
                 GoRoute(
                   name: invoice.name,
                   path: invoice.path,
