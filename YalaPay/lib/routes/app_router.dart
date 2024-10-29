@@ -1,4 +1,5 @@
 // app_router.dart
+
 import 'package:go_router/go_router.dart';
 import 'package:quickmart/screens/cheques_report_screen.dart';
 import 'package:quickmart/screens/customers_screen.dart';
@@ -10,6 +11,7 @@ import 'package:quickmart/screens/manage_cashing_screen.dart';
 import 'package:quickmart/screens/payments_screen.dart';
 import 'package:quickmart/screens/shell_screen.dart';
 import 'package:quickmart/screens/start_screen.dart';
+import 'package:quickmart/screens/cheque_deposits_screen.dart'; // Import the new deposits screen
 
 class AppRouter {
   static const start = (name: 'start', path: '/');
@@ -21,6 +23,7 @@ class AppRouter {
   static const manageCashing = (name: 'manageCashing', path: '/manageCashing');
   static const invoiceReport = (name: 'invoiceReport', path: '/invoiceReport');
   static const chequesReport = (name: 'chequesReport', path: '/chequesReport');
+  static const chequeDeposits = (name: 'chequeDeposits', path: '/chequeDeposits'); // New route
 
   static final router = GoRouter(
     initialLocation: start.path,
@@ -71,6 +74,11 @@ class AppRouter {
                   name: chequesReport.name,
                   path: chequesReport.path,
                   builder: (context, state) => ChequesReportScreen(),
+                ),
+                GoRoute(
+                  name: chequeDeposits.name,
+                  path: chequeDeposits.path,
+                  builder: (context, state) => ChequeDepositsScreen(), // Add builder for the new route
                 ),
               ],
               builder: (context, state, child) => ShellScreen(child: child),

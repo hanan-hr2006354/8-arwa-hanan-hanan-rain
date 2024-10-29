@@ -6,6 +6,7 @@ import 'package:quickmart/repo/cheque_repository.dart';
 import 'package:quickmart/models/cheque.dart';
 import 'package:quickmart/providers/bank_account_provider.dart';
 import 'package:quickmart/models/bank_account.dart';
+import 'package:go_router/go_router.dart';
 
 class ManageCashingsScreen extends ConsumerStatefulWidget {
   @override
@@ -13,7 +14,7 @@ class ManageCashingsScreen extends ConsumerStatefulWidget {
 }
 
 class _ManageCashingsScreenState extends ConsumerState<ManageCashingsScreen> {
-  Set<int> selectedChequeNumbers = {}; // Track selected cheques by cheque number
+  Set<int> selectedChequeNumbers = {};
   BankAccount? selectedBankAccount;
 
   @override
@@ -61,8 +62,6 @@ class _ManageCashingsScreenState extends ConsumerState<ManageCashingsScreen> {
               ),
             ),
           ),
-          
-          // Body with FutureBuilder to load cheques from JSON
           Positioned(
             top: MediaQuery.of(context).size.height / 3.4,
             left: 0,
@@ -127,8 +126,6 @@ class _ManageCashingsScreenState extends ConsumerState<ManageCashingsScreen> {
                             },
                           ),
                         ),
-
-                        // Bank Account Dropdown
                         DropdownButton<BankAccount>(
                           hint: Text("Select Bank Account"),
                           value: selectedBankAccount,
@@ -144,39 +141,61 @@ class _ManageCashingsScreenState extends ConsumerState<ManageCashingsScreen> {
                             );
                           }).toList(),
                         ),
-                        
-                        // Create Deposit Button
                         SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: selectedBankAccount == null || selectedChequeNumbers.isEmpty
-                              ? null
-                              : () async {
-                                  final selectedCheques = cheques
-                                      .where((cheque) => selectedChequeNumbers.contains(cheque.chequeNo))
-                                      .toList();
-                                  await chequeRepository.createDeposit(
-                                    selectedCheques,
-                                    selectedBankAccount!.accountNo,
-                                  );
-                                  setState(() {
-                                    selectedChequeNumbers.clear();
-                                  });
-                                  ref.refresh(chequeRepositoryProvider);
-                                },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.brown[400],
-                            padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ElevatedButton(
+                              onPressed: selectedBankAccount == null || selectedChequeNumbers.isEmpty
+                                  ? null
+                                  : () async {
+                                      final selectedCheques = cheques
+                                          .where((cheque) => selectedChequeNumbers.contains(cheque.chequeNo))
+                                          .toList();
+                                      await chequeRepository.createDeposit(
+                                        selectedCheques,
+                                        selectedBankAccount!.accountNo,
+                                      );
+                                      setState(() {
+                                        selectedChequeNumbers.clear();
+                                      });
+                                      ref.refresh(chequeRepositoryProvider);
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.brown[400],
+                                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                              ),
+                              child: Text(
+                                "Create Deposit",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Color.fromARGB(255, 250, 250, 250),
+                                ),
+                              ),
                             ),
-                          ),
-                          child: Text(
-                            "Create Deposit",
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Color.fromARGB(255, 250, 250, 250),
+                            ElevatedButton(
+                              onPressed: () {
+                                GoRouter.of(context).go('/chequeDeposits');
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.brown[400],
+                                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                              ),
+                              child: Text(
+                                "View Deposits",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Color.fromARGB(255, 250, 250, 250),
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
                       ],
                     );
