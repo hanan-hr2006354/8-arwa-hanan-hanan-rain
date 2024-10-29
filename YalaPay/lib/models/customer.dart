@@ -1,21 +1,21 @@
 import 'package:quickmart/models/address.dart';
 import 'package:quickmart/models/contact.dart';
 
-class Company {
+class Customer {
   final String id;
   final String companyName;
   final Address address;
   final ContactDetails contactDetails;
 
-  Company({
+  Customer({
     required this.id,
     required this.companyName,
     required this.address,
     required this.contactDetails,
   });
 
-  factory Company.fromJson(Map<String, dynamic> json) {
-    return Company(
+  factory Customer.fromJson(Map<String, dynamic> json) {
+    return Customer(
       id: json['id'],
       companyName: json['companyName'],
       address: Address.fromJson(json['address']),
