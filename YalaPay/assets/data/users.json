@@ -3,6 +3,13 @@
     "firstName": "Hanan",
     "lastName": "Rashid",
     "email": "hanan@example.com",
+    "password": "1",
+    "username": "1"
+  },
+  {
+    "firstName": "Hanan",
+    "lastName": "Rashid",
+    "email": "hanan@example.com",
     "password": "123",
     "username": "hanan123"
   },
