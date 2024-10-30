@@ -150,7 +150,8 @@ class _CustomerEditorState extends ConsumerState<CustomerEditor> {
                       if (customer != null)
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
+                              backgroundColor:
+                                  const Color.fromARGB(255, 159, 204, 241),
                               foregroundColor: Colors.white),
                           onPressed: () {
                             ref
@@ -177,7 +178,8 @@ class _CustomerEditorState extends ConsumerState<CustomerEditor> {
                       if (customer == null)
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
+                              backgroundColor:
+                                  const Color.fromARGB(255, 190, 228, 164),
                               foregroundColor: Colors.white),
                           onPressed: () {
                             if (firstNameController.text.isEmpty ||
