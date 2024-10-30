@@ -51,7 +51,43 @@ class _CustomerEditorState extends ConsumerState<CustomerEditor> {
     ];
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(0, 252, 252, 252),
+      backgroundColor: Colors.white,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(120),
+        child: Stack(
+          children: [
+            Container(
+              height: 105,
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/background.PNG'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              centerTitle: true,
+              title: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 40),
+                  const Text(
+                    'Customers',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF915050),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: SingleChildScrollView(
@@ -70,7 +106,8 @@ class _CustomerEditorState extends ConsumerState<CustomerEditor> {
                         TextField(
                           controller: item['controller'],
                           decoration: InputDecoration(
-                            fillColor: const Color.fromARGB(0, 147, 147, 149),
+                            fillColor:
+                                Colors.grey[300], // Change to bright grey
                             filled: true,
                             labelText: item['label'],
                             enabledBorder: OutlineInputBorder(

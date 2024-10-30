@@ -16,6 +16,7 @@ class CustomerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: const Color.fromARGB(255, 245, 238, 226),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -27,7 +28,8 @@ class CustomerCard extends StatelessWidget {
                 Text(
                   overflow: TextOverflow.ellipsis,
                   '${customer.contactDetails.firstName} ${customer.contactDetails.lastName}',
-                  style: const TextStyle(color: Colors.green, fontSize: 12),
+                  style: const TextStyle(
+                      color: Color.fromARGB(255, 78, 53, 33), fontSize: 20),
                 ),
                 Row(
                   children: [

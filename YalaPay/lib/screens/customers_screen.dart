@@ -31,7 +31,7 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(120), // Adjusted height
+        preferredSize: const Size.fromHeight(120),
         child: Stack(
           children: [
             Container(
@@ -50,6 +50,7 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
               title: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  const SizedBox(height: 40),
                   const Text(
                     'Customers',
                     style: TextStyle(
@@ -78,12 +79,12 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                   child: TextField(
                     decoration: InputDecoration(
                       prefixIcon: const Icon(Icons.search),
-                      fillColor: Color(0xFF915050),
+                      fillColor: Colors.brown[50],
                       filled: true,
                       hintText: 'Search...',
                       enabledBorder: OutlineInputBorder(
                         borderSide: const BorderSide(
-                          color: Color(0xFF915050),
+                          color: Color.fromARGB(255, 234, 232, 230),
                         ),
                         borderRadius: BorderRadius.circular(10),
                       ),

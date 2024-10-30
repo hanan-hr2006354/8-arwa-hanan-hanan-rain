@@ -10,7 +10,7 @@ class AddCustomer extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.green,
+        backgroundColor: const Color.fromARGB(255, 41, 42, 36),
         foregroundColor: Colors.white,
         fixedSize: const Size(130, 47),
         textStyle: const TextStyle(fontSize: 14),
