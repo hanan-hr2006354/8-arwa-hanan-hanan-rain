@@ -13,6 +13,20 @@ class InvoicesScreen extends ConsumerStatefulWidget {
 }
 
 class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
+  double screenWidth = 0;
+  int columns = 1;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    screenWidth = MediaQuery.of(context).size.width;
+    columns = switch (screenWidth) {
+      < 840 => 1,
+      >= 840 && < 1150 => 2,
+      _ => 3,
+    };
+  }
+
   final TextEditingController _searchController = TextEditingController();
   String? selectedCustomerId;
   String? selectedCustomerName;
@@ -121,7 +135,13 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
             Expanded(
               child: filteredInvoices.isEmpty
                   ? const Center(child: Text('No invoices found.'))
-                  : ListView.builder(
+                  : GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: columns,
+                        crossAxisSpacing: 10.0,
+                        mainAxisSpacing: 10.0,
+                        mainAxisExtent: 270,
+                      ),
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       itemCount: filteredInvoices.length,
                       itemBuilder: (context, index) {
@@ -144,7 +164,7 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
                                   ),
                                 ),
                                 Text(
-                                  'Customer Name: ${invoice.customerName}', // Display customer name
+                                  'Customer Name: ${invoice.customerName}',
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 12,
