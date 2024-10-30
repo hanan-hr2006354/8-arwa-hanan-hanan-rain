@@ -1,5 +1,5 @@
 import 'package:quickmart/models/address.dart';
-import 'package:quickmart/models/contact.dart';
+import 'package:quickmart/models/contact_details.dart';
 
 class Customer {
   final String id;

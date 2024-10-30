@@ -2,6 +2,7 @@
 
 import 'package:go_router/go_router.dart';
 import 'package:quickmart/screens/cheques_report_screen.dart';
+import 'package:quickmart/screens/customer_editor_screen.dart';
 import 'package:quickmart/screens/customers_screen.dart';
 import 'package:quickmart/screens/invoice_report_screen.dart';
 import 'package:quickmart/screens/invoices_screen.dart';
@@ -23,8 +24,10 @@ class AppRouter {
   static const manageCashing = (name: 'manageCashing', path: '/manageCashing');
   static const invoiceReport = (name: 'invoiceReport', path: '/invoiceReport');
   static const chequesReport = (name: 'chequesReport', path: '/chequesReport');
-  static const chequeDeposits = (name: 'chequeDeposits', path: '/chequeDeposits'); // New route
-
+  static const chequeDeposits =
+      (name: 'chequeDeposits', path: '/chequeDeposits'); // New route
+  static const customerEditor =
+      (name: 'customerEditor', path: '/customers/customerEditor/:customerId');
   static final router = GoRouter(
     initialLocation: start.path,
     routes: [
@@ -46,10 +49,19 @@ class AppRouter {
                   builder: (context, state) => DashboardScreen(),
                 ),
                 GoRoute(
-                  name: customer.name,
-                  path: customer.path,
-                  builder: (context, state) => CustomersScreen(),
-                ),
+                    name: customer.name,
+                    path: customer.path,
+                    builder: (context, state) => CustomersScreen(),
+                    routes: [
+                      GoRoute(
+                        name: customerEditor.name,
+                        path: customerEditor.path,
+                        builder: (context, state) {
+                          final customerId = state.pathParameters['customerId'];
+                          return CustomerEditor(customerId: customerId);
+                        },
+                      ),
+                    ]),
                 GoRoute(
                   name: invoice.name,
                   path: invoice.path,
@@ -78,7 +90,8 @@ class AppRouter {
                 GoRoute(
                   name: chequeDeposits.name,
                   path: chequeDeposits.path,
-                  builder: (context, state) => ChequeDepositsScreen(), // Add builder for the new route
+                  builder: (context, state) =>
+                      ChequeDepositsScreen(), // Add builder for the new route
                 ),
               ],
               builder: (context, state, child) => ShellScreen(child: child),

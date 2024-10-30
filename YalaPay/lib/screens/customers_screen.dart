@@ -1,28 +1,56 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:quickmart/providers/customer_provider.dart';
+import 'package:quickmart/routes/app_router.dart';
+import 'package:quickmart/widgets/add_customer.dart';
+import 'package:quickmart/widgets/customer_card.dart';
 
-class CustomersScreen extends StatelessWidget {
+class CustomersScreen extends ConsumerStatefulWidget {
+  const CustomersScreen({super.key});
+
+  @override
+  ConsumerState<CustomersScreen> createState() => _CustomersScreenState();
+}
+
+class _CustomersScreenState extends ConsumerState<CustomersScreen> {
+  double screenWidth = 0;
+  int columns = 1;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    screenWidth = MediaQuery.of(context).size.width;
+    columns =
+        switch (screenWidth) { < 840 => 1, >= 840 && < 1150 => 2, _ => 3 };
+  }
+
   @override
   Widget build(BuildContext context) {
+    final customers = ref.watch(customerNotifierProvider);
     return Scaffold(
-      backgroundColor: Color(0xFFFEFFF7),
-      body: Stack(
-        children: [
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: MediaQuery.of(context).size.height / 7.5,
-              decoration: BoxDecoration(
+      backgroundColor: Colors.white,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(120), // Adjusted height
+        child: Stack(
+          children: [
+            Container(
+              height: 105,
+              decoration: const BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage('assets/images/background.PNG'),
                   fit: BoxFit.cover,
                 ),
               ),
-              child: Column(
+            ),
+            AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              centerTitle: true,
+              title: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
+                  const Text(
                     'Customers',
                     style: TextStyle(
                       fontSize: 28,
@@ -30,31 +58,85 @@ class CustomersScreen extends StatelessWidget {
                       color: Color(0xFF915050),
                     ),
                   ),
-                  SizedBox(height: 8),
-                  Text(
-                    ' ',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Color(0xFF915050).withOpacity(0.7),
-                    ),
-                  ),
+                  const SizedBox(height: 8),
                 ],
               ),
             ),
-          ),
-          Positioned(
-            top: MediaQuery.of(context).size.height / 3.4,
-            left: 0,
-            right: 0,
-            child: ClipPath(
-              child: Container(
-                color: Color(0xFFFEFFF7),
-                padding: EdgeInsets.all(30),
-                child: Column(children: []),
+          ],
+        ),
+      ),
+      floatingActionButton: screenWidth < 600
+          ? AddCustomer(customersLength: customers.length)
+          : null,
+      body: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(Icons.search),
+                      fillColor: Color(0xFF915050),
+                      filled: true,
+                      hintText: 'Search...',
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(
+                          color: Color(0xFF915050),
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide:
+                            const BorderSide(color: Colors.green, width: 1.0),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onChanged: (value) {
+                      ref
+                          .read(customerNotifierProvider.notifier)
+                          .getCustomers(value);
+                    },
+                  ),
+                ),
+                if (screenWidth >= 600)
+                  Row(
+                    children: [
+                      const SizedBox(width: 10),
+                      AddCustomer(customersLength: customers.length),
+                    ],
+                  )
+              ],
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: columns,
+                  crossAxisSpacing: 10.0,
+                  mainAxisSpacing: 10.0,
+                  mainAxisExtent: 200,
+                ),
+                itemCount: customers.length,
+                itemBuilder: (context, index) {
+                  return CustomerCard(
+                    customer: customers[index],
+                    onEdit: (customer) {
+                      context.pushNamed(AppRouter.customerEditor.name,
+                          pathParameters: {'customerId': customers[index].id});
+                    },
+                    onDelete: (customer) {
+                      ref
+                          .read(customerNotifierProvider.notifier)
+                          .removeCustomer(customers[index]);
+                    },
+                  );
+                },
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

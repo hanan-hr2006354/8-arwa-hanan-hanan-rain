@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quickmart/models/invoice.dart';
-import 'package:quickmart/models/customer.dart'; // Import your Customer model
+import 'package:quickmart/models/customer.dart';
 import 'package:quickmart/providers/invoice_provider.dart';
-import 'package:quickmart/providers/customer_provider.dart'; // Import the customer provider
+import 'package:quickmart/providers/customer_provider.dart';
 
 class InvoicesScreen extends ConsumerStatefulWidget {
   const InvoicesScreen({super.key});
