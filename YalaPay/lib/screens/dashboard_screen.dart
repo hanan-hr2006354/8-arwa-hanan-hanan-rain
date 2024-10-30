@@ -1,6 +1,25 @@
 import 'package:flutter/material.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
+  @override
+  _DashboardScreenState createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  double screenWidth = 0;
+  int columns = 1;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    screenWidth = MediaQuery.of(context).size.width;
+    columns = switch (screenWidth) {
+      < 840 => 1,
+      >= 840 && < 1150 => 2,
+      _ => 3,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,33 +68,38 @@ class DashboardScreen extends StatelessWidget {
             child: Container(
               color: Color(0xFFFEFFF7),
               padding: EdgeInsets.all(20),
-              child: Column(
+              child: GridView.count(
+                crossAxisCount: columns,
+                childAspectRatio: 2,
+                physics: NeverScrollableScrollPhysics(),
+                shrinkWrap: true, //
                 children: [
                   _buildSummaryCard(
-                      'Invoices',
-                      [
-                        _buildSummaryRow('All:', '99.99 QR',
-                            const Color.fromARGB(255, 137, 204, 118)),
-                        _buildSummaryRow('Due Date in 30 days:', '33.33 QR',
-                            const Color.fromARGB(255, 134, 184, 224)),
-                        _buildSummaryRow('Due Date in 60 days:', '66.66 QR',
-                            const Color.fromARGB(255, 223, 128, 121)),
-                      ],
-                      Icons.receipt), // Add invoice icon
-                  SizedBox(height: 20),
+                    'Invoices',
+                    [
+                      _buildSummaryRow('All:', '99.99 QR',
+                          const Color.fromARGB(255, 137, 204, 118)),
+                      _buildSummaryRow('Due Date in 30 days:', '33.33 QR',
+                          const Color.fromARGB(255, 134, 184, 224)),
+                      _buildSummaryRow('Due Date in 60 days:', '66.66 QR',
+                          const Color.fromARGB(255, 223, 128, 121)),
+                    ],
+                    Icons.receipt,
+                  ),
                   _buildSummaryCard(
-                      'Cheques',
-                      [
-                        _buildSummaryRow('Awaiting:', '99.99 QR',
-                            const Color.fromARGB(255, 232, 192, 130)),
-                        _buildSummaryRow('Deposited:', '22.22 QR',
-                            const Color.fromARGB(255, 123, 185, 237)),
-                        _buildSummaryRow('Cashed:', '44.44 QR',
-                            const Color.fromARGB(255, 137, 204, 118)),
-                        _buildSummaryRow('Returned:', '11.11 QR',
-                            const Color.fromARGB(255, 223, 128, 121)),
-                      ],
-                      Icons.check),
+                    'Cheques',
+                    [
+                      _buildSummaryRow('Awaiting:', '99.99 QR',
+                          const Color.fromARGB(255, 232, 192, 130)),
+                      _buildSummaryRow('Deposited:', '22.22 QR',
+                          const Color.fromARGB(255, 123, 185, 237)),
+                      _buildSummaryRow('Cashed:', '44.44 QR',
+                          const Color.fromARGB(255, 137, 204, 118)),
+                      _buildSummaryRow('Returned:', '11.11 QR',
+                          const Color.fromARGB(255, 223, 128, 121)),
+                    ],
+                    Icons.check,
+                  ),
                 ],
               ),
             ),
