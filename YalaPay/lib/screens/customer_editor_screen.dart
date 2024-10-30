@@ -139,7 +139,8 @@ class _CustomerEditorState extends ConsumerState<CustomerEditor> {
                     children: [
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
+                            backgroundColor:
+                                const Color.fromARGB(255, 153, 99, 95),
                             foregroundColor: Colors.white),
                         onPressed: () {
                           Navigator.of(context).pop();
@@ -151,7 +152,7 @@ class _CustomerEditorState extends ConsumerState<CustomerEditor> {
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                               backgroundColor:
-                                  const Color.fromARGB(255, 159, 204, 241),
+                                  const Color.fromARGB(255, 115, 159, 196),
                               foregroundColor: Colors.white),
                           onPressed: () {
                             ref
@@ -179,7 +180,7 @@ class _CustomerEditorState extends ConsumerState<CustomerEditor> {
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                               backgroundColor:
-                                  const Color.fromARGB(255, 190, 228, 164),
+                                  const Color.fromARGB(255, 158, 192, 135),
                               foregroundColor: Colors.white),
                           onPressed: () {
                             if (firstNameController.text.isEmpty ||
