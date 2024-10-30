@@ -74,11 +74,12 @@ class ChequeRepository {
     }
   }
 
-  // Create a new deposit and update both cheques.json and cheque-deposits.json
-  Future<void> createDeposit(List<Cheque> selectedCheques, String bankAccountNo) async {
+  Future<void> createDeposit(
+      List<Cheque> selectedCheques, String bankAccountNo) async {
     final depositDate = DateTime.now();
     final newDepositId = DateTime.now().millisecondsSinceEpoch.toString();
-    final selectedChequeNos = selectedCheques.map((cheque) => cheque.chequeNo).toList();
+    final selectedChequeNos =
+        selectedCheques.map((cheque) => cheque.chequeNo).toList();
 
     await _updateChequesStatus(selectedChequeNos);
 
@@ -107,7 +108,8 @@ class ChequeRepository {
         return cheque;
       }).toList();
 
-      await file.writeAsString(jsonEncode(chequesJson), mode: FileMode.write, flush: true);
+      await file.writeAsString(jsonEncode(chequesJson),
+          mode: FileMode.write, flush: true);
     } catch (e) {
       print("Error updating cheques.json: $e");
     }
@@ -124,7 +126,8 @@ class ChequeRepository {
       List depositsJson = jsonDecode(depositsData);
       depositsJson.add(newDeposit);
 
-      await file.writeAsString(jsonEncode(depositsJson), mode: FileMode.write, flush: true);
+      await file.writeAsString(jsonEncode(depositsJson),
+          mode: FileMode.write, flush: true);
     } catch (e) {
       print("Error writing to cheque-deposits.json: $e");
     }
