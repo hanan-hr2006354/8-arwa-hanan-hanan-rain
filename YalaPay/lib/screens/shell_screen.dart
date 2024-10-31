@@ -46,6 +46,18 @@ class _ShellScreenState extends State<ShellScreen> {
                     },
                   ),
                 ),
+                // Logout Icon Button
+                Positioned(
+                  top: 16.0,
+                  right: 16.0,
+                  child: IconButton(
+                    icon: Icon(Icons.logout, color: Colors.black),
+                    onPressed: () {
+                      context
+                          .go(AppRouter.login.path); // Navigate to login page
+                    },
+                  ),
+                ),
               ],
             ),
           ),
