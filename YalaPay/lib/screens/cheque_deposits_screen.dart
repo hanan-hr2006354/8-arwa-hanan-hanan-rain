@@ -6,6 +6,8 @@ import 'package:quickmart/repo/cheque_repository.dart';
 import 'package:quickmart/repo/deposits_repository.dart';
 
 class ChequeDepositsScreen extends StatefulWidget {
+  const ChequeDepositsScreen({super.key});
+
   @override
   _ChequeDepositsScreenState createState() => _ChequeDepositsScreenState();
 }
@@ -131,7 +133,7 @@ class _ChequeDepositsScreenState extends State<ChequeDepositsScreen> {
                                     );
                                   },
                                 ),
-                                ButtonBar(
+                                OverflowBar(
                                   alignment: MainAxisAlignment.spaceAround,
                                   children: [
                                     ElevatedButton(
@@ -139,10 +141,10 @@ class _ChequeDepositsScreenState extends State<ChequeDepositsScreen> {
                                         final returnReasons = await depositsRepository.loadReturnReasons();
                                         _showUpdateDialog(context, deposit["id"], returnReasons);
                                       },
-                                      child: Text('Update Status'),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.orangeAccent,
                                       ),
+                                      child: Text('Update Status'),
                                     ),
                                     ElevatedButton.icon(
                                       onPressed: () async {
