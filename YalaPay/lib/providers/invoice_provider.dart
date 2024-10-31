@@ -51,10 +51,6 @@ class InvoiceNotifier extends Notifier<List<Invoice>> {
           invoice.id.toLowerCase().contains(query.toLowerCase());
     }).toList();
   }
-
-  //-------------
-
-//----------
 }
 
 final invoiceNotifierProvider =
