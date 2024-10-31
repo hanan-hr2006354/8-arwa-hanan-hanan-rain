@@ -72,6 +72,9 @@ class InvoiceNotifier extends Notifier<List<Invoice>> {
   Future<void> saveToFileOnDemand() async {
     await saveInvoicesToFile();
   }
+  //-------------
+
+//----------
 }
 
 final invoiceNotifierProvider =

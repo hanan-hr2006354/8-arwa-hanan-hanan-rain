@@ -21,7 +21,6 @@ class _InvoiceReportScreenState extends ConsumerState<InvoiceReportScreen> {
   String _selectedStatus = "All";
 
   //State? get state => null;
-
   Future<void> _selectDate(
       BuildContext context, TextEditingController controller) async {
     final DateTime? picked = await showDatePicker(
@@ -33,11 +32,22 @@ class _InvoiceReportScreenState extends ConsumerState<InvoiceReportScreen> {
     if (picked != null) controller.text = picked.toIso8601String();
   }
 
+  List<String> getinvoceStatus() {
+    try {
+      final jsonString = File('invoice-status.json').readAsStringSync();
+      return List<String>.from(jsonDecode(jsonString));
+    } catch (e) {
+      print("Error reading string list from JSON file: $e");
+      return [];
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final invoices = ref.watch(invoiceNotifierProvider);
+    final List<String> invoiceStatus = getinvoceStatus();
     return Scaffold(
-      backgroundColor: Color(0xFFFEFFF7),
+      backgroundColor: Color.fromARGB(255, 222, 227, 182),
       body: Stack(
         children: [
           Positioned(
@@ -88,29 +98,56 @@ class _InvoiceReportScreenState extends ConsumerState<InvoiceReportScreen> {
                   TextField(
                     controller: _fromDateController,
                     readOnly: true,
-                    decoration: InputDecoration(labelText: 'From Date'),
+                    decoration: InputDecoration(
+                      labelText: 'From Date',
+                      hintStyle: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Color.fromARGB(255, 84, 45, 45),
+                      ),
+                    ),
                     onTap: () => _selectDate(context, _fromDateController),
                   ),
 
                   TextField(
                     controller: _toDateController,
                     readOnly: true,
-                    decoration: InputDecoration(labelText: 'To Date'),
+                    decoration: InputDecoration(
+                      labelText: 'To Date',
+                      hintStyle: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Color.fromARGB(255, 84, 45, 45),
+                      ),
+                    ),
                     onTap: () => _selectDate(context, _toDateController),
                   ),
 
                   DropdownButton<String>(
                     value: _selectedStatus,
-                    items: ["All", "Pending", "Partially Paid", "Paid"]
+                    items: invoiceStatus
                         .map((status) => DropdownMenuItem(
                               value: status,
-                              child: Text(status),
+                              child: Text(
+                                status,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color.fromARGB(255, 84, 45, 45),
+                                ),
+                              ),
                             ))
                         .toList(),
                     onChanged: (value) {
-                      if (value != null) _selectedStatus = value;
+                      if (value != null) {
+                        setState(() {
+                          _selectedStatus = value;
+                        });
+                      }
                     },
+                    //  Text(''),
                   ),
+
                   ElevatedButton(
                     onPressed: () {
                       final fromDate = DateTime.parse(_fromDateController.text);
@@ -135,9 +172,30 @@ class _InvoiceReportScreenState extends ConsumerState<InvoiceReportScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               //textStyle
-                              Text('Invoices found: $invoices.length'),
-                              Text('Total amount: $totalAmount'),
-                              Text('Total amount: $totalBalance'),
+                              Text(
+                                'Invoices found: ${invoiceCount(invoices)}',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color.fromARGB(255, 39, 3, 3),
+                                ),
+                              ),
+                              Text(
+                                'Total amount: $totalAmount',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color.fromARGB(255, 84, 45, 45),
+                                ),
+                              ),
+                              Text(
+                                'Total amount: $totalBalance',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color.fromARGB(255, 84, 45, 45),
+                                ),
+                              ),
                               if (_selectedStatus == 'All')
                                 ...calculateTotalsByStatus(invoices)
                                     .entries
@@ -160,6 +218,22 @@ class _InvoiceReportScreenState extends ConsumerState<InvoiceReportScreen> {
     );
   }
 
+  //-----------
+  double calculateTotalAmount(List<Invoice> invoices) {
+    return invoices.fold(0.0, (sum, invoice) => sum + invoice.balance);
+  }
+
+  //-----------
+  double calculateTotalBalance(List<Invoice> invoices) {
+    return invoices.fold(0.0, (sum, invoice) => sum + invoice.balance);
+  }
+
+  //-----------
+  int invoiceCount(List<Invoice> invoices) {
+    return invoices.length;
+  }
+
+  //-----------
   List<Invoice> getInvoicesByPeriodAndStatus({
     required List<Invoice> invoices,
     required DateTime fromDate,
@@ -170,19 +244,12 @@ class _InvoiceReportScreenState extends ConsumerState<InvoiceReportScreen> {
       final invoiceDate = DateTime.parse(invoice.invoiceDate);
       final isWithinDateRange =
           invoiceDate.isAfter(fromDate) && invoiceDate.isBefore(toDate);
-      final matchesStatus = (status == "All") || (invoice.status == status);
+      final matchesStatus = (status == "All");
 
       return isWithinDateRange && matchesStatus;
     }).toList();
   }
-
-  double calculateTotalAmount(List<Invoice> invoices) {
-    return invoices.fold(0.0, (sum, invoice) => sum + invoice.balance);
-  }
-
-  double calculateTotalBalance(List<Invoice> invoices) {
-    return invoices.fold(0.0, (sum, invoice) => sum + invoice.balance);
-  }
+  //-----------
 
   Map<String, double> calculateTotalsByStatus(List<Invoice> invoices) {
     final statuses = ["Pending", "Partially Paid", "Paid"];

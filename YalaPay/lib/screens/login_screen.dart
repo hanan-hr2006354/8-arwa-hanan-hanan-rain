@@ -8,6 +8,8 @@ import 'package:quickmart/routes/app_router.dart';
 class LoginScreen extends ConsumerWidget {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _firstnameController = TextEditingController();
+  final TextEditingController _lastnameController = TextEditingController();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -73,6 +75,18 @@ class LoginScreen extends ConsumerWidget {
                     ),
                     SizedBox(height: 20),
                     _buildTextField(
+                      controller: _firstnameController,
+                      icon: Icons.person,
+                      hintText: 'First Name',
+                    ),
+                    SizedBox(height: 20),
+                    _buildTextField(
+                      controller: _lastnameController,
+                      icon: Icons.person,
+                      hintText: 'Last Name',
+                    ),
+                    SizedBox(height: 20),
+                    _buildTextField(
                       controller: _usernameController,
                       icon: Icons.person,
                       hintText: 'Username',
@@ -120,9 +134,13 @@ class LoginScreen extends ConsumerWidget {
                       onPressed: () {
                         final username = _usernameController.text;
                         final password = _passwordController.text;
+                        final firstname = _firstnameController.text;
+                        final lastname = _lastnameController.text;
+
                         if (ref
                             .read(userNotifierProvider.notifier)
-                            .validateCredentials(username, password)) {
+                            .validateCredentials(
+                                firstname, lastname, username, password)) {
                           context.go(AppRouter.main.path);
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -185,18 +203,20 @@ class LoginScreen extends ConsumerWidget {
     required String hintText,
     bool isPassword = false,
   }) {
-    return TextField(
-      controller: controller,
-      obscureText: isPassword,
-      decoration: InputDecoration(
-        prefixIcon: Icon(icon),
-        hintText: hintText,
-        hintStyle: TextStyle(color: Color(0xFF915050)),
-        filled: true,
-        fillColor: Colors.brown[50],
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide.none,
+    return Container(
+      child: TextField(
+        controller: controller,
+        obscureText: isPassword,
+        decoration: InputDecoration(
+          prefixIcon: Icon(icon),
+          hintText: hintText,
+          hintStyle: TextStyle(color: Color(0xFF915050)),
+          filled: true,
+          fillColor: Colors.brown[50],
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: BorderSide.none,
+          ),
         ),
       ),
     );

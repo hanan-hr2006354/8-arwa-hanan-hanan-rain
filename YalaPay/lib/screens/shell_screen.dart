@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:quickmart/routes/app_router.dart';
 
 class ShellScreen extends StatefulWidget {
-  // Change to StatefulWidget
   final Widget? child;
 
   const ShellScreen({super.key, this.child});
@@ -13,120 +12,217 @@ class ShellScreen extends StatefulWidget {
 }
 
 class _ShellScreenState extends State<ShellScreen> {
-  int _currentIndex = 0; // state too track current index
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isWideScreen = screenWidth > 1150;
+    final isMediumScreen = screenWidth >= 840 && screenWidth < 1150;
+
     return Scaffold(
-      drawer: Drawer(
-        backgroundColor: Color(0xFFFEFFF7),
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            Container(
-              color: const Color(0xFFEFD4D4),
-              padding: const EdgeInsets.all(16.0),
-              alignment: Alignment.centerLeft,
-              child: const Text(
-                'Reports Menu',
-                style: TextStyle(
-                  color: Color.fromARGB(255, 97, 68, 68),
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.receipt_long),
-              title: Text('Invoices Report'),
-              onTap: () {
-                Navigator.pop(context); // close the drawer
-                context.go(AppRouter.invoiceReport.path);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.report),
-              title: Text('Cheques Report'),
-              onTap: () {
-                Navigator.pop(context); // close the drawer
-                context.go(AppRouter.chequesReport.path);
-              },
-            ),
-          ],
-        ),
-      ),
-      body: Stack(
+      drawer: isWideScreen ? null : _buildDrawer(),
+      body: Row(
         children: [
-          widget.child ?? Container(),
-          Positioned(
-            top: 16.0,
-            left: 16.0,
-            child: Builder(
-              builder: (context) {
-                return IconButton(
-                  icon: Icon(Icons.menu, color: Colors.black),
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                  },
-                );
-              },
+          if (isWideScreen || isMediumScreen) _buildSideBar(),
+          Expanded(
+            child: Stack(
+              children: [
+                widget.child ?? Container(),
+                Positioned(
+                  top: 16.0,
+                  left: 16.0,
+                  child: Builder(
+                    builder: (context) {
+                      return IconButton(
+                        icon: Icon(Icons.menu, color: Colors.black),
+                        onPressed: () {
+                          if (isWideScreen) {
+                          } else {
+                            Scaffold.of(context).openDrawer();
+                          }
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
       backgroundColor: const Color(0xFFEFD4D4),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: const Color(0xFFEFD4D4),
-        currentIndex: _currentIndex, // use the state variable here
-        selectedItemColor: const Color.fromARGB(255, 74, 52, 52),
-        unselectedItemColor: Colors.black,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'Dashboard',
+      bottomNavigationBar: isWideScreen ? null : _buildBottomNavigationBar(),
+    );
+  }
+
+  Widget _buildDrawer() {
+    return Drawer(
+      backgroundColor: Color(0xFFFEFFF7),
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          Container(
+            color: const Color(0xFFEFD4D4),
+            padding: const EdgeInsets.all(16.0),
+            alignment: Alignment.centerLeft,
+            child: const Text(
+              'Reports Menu',
+              style: TextStyle(
+                color: Color.fromARGB(255, 97, 68, 68),
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: 'Customers',
+          ListTile(
+            leading: Icon(Icons.receipt_long),
+            title: Text('Invoices Report'),
+            onTap: () {
+              Navigator.pop(context);
+              context.go(AppRouter.invoiceReport.path);
+            },
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.receipt),
-            label: 'Invoices',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.payment),
-            label: 'Payments',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.manage_accounts),
-            label: 'Manage Cashing',
+          ListTile(
+            leading: Icon(Icons.report),
+            title: Text('Cheques Report'),
+            onTap: () {
+              Navigator.pop(context);
+              context.go(AppRouter.chequesReport.path);
+            },
           ),
         ],
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-
-          switch (index) {
-            case 0:
-              context.go(AppRouter.main.path);
-              break;
-            case 1:
-              context.go(AppRouter.customer.path);
-              break;
-            case 2:
-              context.go(AppRouter.invoice.path);
-              break;
-            case 3:
-              context.go(AppRouter.payment.path);
-              break;
-            case 4:
-              context.go(AppRouter.manageCashing.path);
-              break;
-          }
-        },
       ),
+    );
+  }
+
+  Widget _buildSideBar() {
+    return Container(
+      width: 250,
+      color: Color(0xFFEFD4D4),
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16.0),
+            alignment: Alignment.centerLeft,
+            child: const Text(
+              'Quick Access',
+              style: TextStyle(
+                color: Color.fromARGB(255, 97, 68, 68),
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          ListTile(
+            leading: Icon(Icons.dashboard),
+            title: Text('Dashboard'),
+            onTap: () {
+              context.go(AppRouter.main.path);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.people),
+            title: Text('Customers'),
+            onTap: () {
+              context.go(AppRouter.customer.path);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.receipt),
+            title: Text('Invoices'),
+            onTap: () {
+              context.go(AppRouter.invoice.path);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.payment),
+            title: Text('Payments'),
+            onTap: () {
+              context.go(AppRouter.payment.path);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.manage_accounts),
+            title: Text('Manage Cashing'),
+            onTap: () {
+              context.go(AppRouter.manageCashing.path);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.receipt_long),
+            title: Text('Invoices Report'),
+            onTap: () {
+              Navigator.pop(context);
+              context.go(AppRouter.invoiceReport.path);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.report),
+            title: Text('Cheques Report'),
+            onTap: () {
+              Navigator.pop(context);
+              context.go(AppRouter.chequesReport.path);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomNavigationBar() {
+    return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
+      backgroundColor: const Color(0xFFEFD4D4),
+      currentIndex: _currentIndex,
+      selectedItemColor: const Color.fromARGB(255, 74, 52, 52),
+      unselectedItemColor: Colors.black,
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.dashboard),
+          label: 'Dashboard',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.people),
+          label: 'Customers',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.receipt),
+          label: 'Invoices',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.payment),
+          label: 'Payments',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.manage_accounts),
+          label: 'Manage Cashing',
+        ),
+      ],
+      onTap: (index) {
+        setState(() {
+          _currentIndex = index;
+        });
+
+        switch (index) {
+          case 0:
+            context.go(AppRouter.main.path);
+            break;
+          case 1:
+            context.go(AppRouter.customer.path);
+            break;
+          case 2:
+            context.go(AppRouter.invoice.path);
+            break;
+          case 3:
+            context.go(AppRouter.payment.path);
+            break;
+          case 4:
+            context.go(AppRouter.manageCashing.path);
+            break;
+        }
+      },
     );
   }
 }

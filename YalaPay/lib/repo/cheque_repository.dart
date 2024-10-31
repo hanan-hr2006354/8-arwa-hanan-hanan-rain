@@ -8,19 +8,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/cheque.dart';
 
 class ChequeRepository {
-  // Get path for cheques.json in the writable documents directory
   Future<String> get _chequesFilePath async {
     final directory = await getApplicationDocumentsDirectory();
     return 'assets/data/cheques.json';
   }
 
-  // Get path for cheque-deposits.json in the writable documents directory
   Future<String> get _depositsFilePath async {
     final directory = await getApplicationDocumentsDirectory();
     return 'assets/data/cheque-deposits.json';
   }
 
-  // Force clean environment by resetting cheques.json and cheque-deposits.json
   Future<void> resetData() async {
     final chequesPath = await _chequesFilePath;
     final depositsPath = await _depositsFilePath;
@@ -29,7 +26,6 @@ class ChequeRepository {
     await File(depositsPath).writeAsString(jsonEncode([]));
   }
 
-  // Load all cheques directly from cheques.json
   Future<List<Cheque>> loadCheques() async {
     try {
       final path = await _chequesFilePath;
@@ -42,21 +38,20 @@ class ChequeRepository {
     }
   }
 
-  // Retrieve a specific cheque by its cheque number
   Future<Cheque> getChequeByNumber(int chequeNo) async {
     try {
       final cheques = await loadCheques();
       return cheques.firstWhere(
         (cheque) => cheque.chequeNo == chequeNo,
         orElse: () => Cheque(
-          chequeNo: 0, // Default values
+          chequeNo: 0, 
           amount: 0.0,
           drawer: "Unknown",
           bankName: "Unknown",
           status: "Not Found",
           receivedDate: DateTime.now(),
           dueDate: DateTime.now(),
-          chequeImageUri: "assets/images/placeholder.png", // Default image path
+          chequeImageUri: "assets/images/placeholder.png",
         ),
       );
     } catch (e) {

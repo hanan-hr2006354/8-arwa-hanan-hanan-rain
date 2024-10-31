@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quickmart/repo/cheque_repository.dart';
 import 'package:quickmart/models/cheque.dart';
+import 'package:quickmart/widgets/custom_app_bar.dart';
 
 class ChequesReportScreen extends ConsumerStatefulWidget {
   @override
@@ -29,8 +30,9 @@ class _ChequesReportScreenState extends ConsumerState<ChequesReportScreen> {
       final directory = await getApplicationDocumentsDirectory();
       final path = 'assets/data/cheque-status.json';
       final statusData = await File(path).readAsString();
-      final List<String> loadedStatuses = List<String>.from(jsonDecode(statusData));
-      
+      final List<String> loadedStatuses =
+          List<String>.from(jsonDecode(statusData));
+
       setState(() {
         statuses = ["All", ...loadedStatuses]; // Add "All" as the first option
       });
@@ -63,10 +65,14 @@ class _ChequesReportScreenState extends ConsumerState<ChequesReportScreen> {
 
     setState(() {
       filteredCheques = cheques.where((cheque) {
-        bool isWithinDateRange = 
-            (fromDate == null || cheque.receivedDate.isAfter(fromDate!) || cheque.receivedDate.isAtSameMomentAs(fromDate!)) &&
-            (toDate == null || cheque.receivedDate.isBefore(toDate!) || cheque.receivedDate.isAtSameMomentAs(toDate!));
-        bool matchesStatus = selectedStatus == "All" || cheque.status == selectedStatus;
+        bool isWithinDateRange = (fromDate == null ||
+                cheque.receivedDate.isAfter(fromDate!) ||
+                cheque.receivedDate.isAtSameMomentAs(fromDate!)) &&
+            (toDate == null ||
+                cheque.receivedDate.isBefore(toDate!) ||
+                cheque.receivedDate.isAtSameMomentAs(toDate!));
+        bool matchesStatus =
+            selectedStatus == "All" || cheque.status == selectedStatus;
         return isWithinDateRange && matchesStatus;
       }).toList();
     });
@@ -80,28 +86,14 @@ class _ChequesReportScreenState extends ConsumerState<ChequesReportScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFFEFFF7),
+      appBar: CustomAppBar(
+        titleText: 'Cheques Reports',
+        subtitleText: 'Generate reports based on your preferences.',
+      ),
       body: Column(
         children: [
           // Header
-          Container(
-            height: MediaQuery.of(context).size.height / 7.5,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/background.PNG'),
-                fit: BoxFit.cover,
-              ),
-            ),
-            child: Center(
-              child: Text(
-                'Cheques Report',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF915050),
-                ),
-              ),
-            ),
-          ),
+
           // Input Fields
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -157,7 +149,8 @@ class _ChequesReportScreenState extends ConsumerState<ChequesReportScreen> {
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
             child: ElevatedButton(
               onPressed: () => _generateReport(ref),
-              child: Text("Generate Report", style: TextStyle(color: Colors.white)),
+              child: Text("Generate Report",
+                  style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(double.infinity, 50), // Make button wider
                 backgroundColor: Colors.brown[400],
@@ -171,7 +164,8 @@ class _ChequesReportScreenState extends ConsumerState<ChequesReportScreen> {
           // Cheque List
           Expanded(
             child: filteredCheques.isEmpty
-                ? Center(child: Text("No cheques found for the selected criteria"))
+                ? Center(
+                    child: Text("No cheques found for the selected criteria"))
                 : ListView.builder(
                     padding: EdgeInsets.symmetric(horizontal: 8),
                     itemCount: filteredCheques.length,
@@ -228,19 +222,26 @@ class _ChequesReportScreenState extends ConsumerState<ChequesReportScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ...statusGroups.entries.map((entry) {
-            final statusTotal = entry.value.fold(0.0, (sum, cheque) => sum + cheque.amount);
+            final statusTotal =
+                entry.value.fold(0.0, (sum, cheque) => sum + cheque.amount);
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 2.0),
               child: Text(
                 "${entry.key} - Count: ${entry.value.length}, Total: \$${statusTotal.toStringAsFixed(2)}",
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.brown[700]),
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.brown[700]),
               ),
             );
           }),
           Divider(),
           Text(
             "Grand Total - Count: ${cheques.length}, Total: \$${grandTotal.toStringAsFixed(2)}",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.brown[800]),
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.brown[800]),
           ),
         ],
       ),

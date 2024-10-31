@@ -23,11 +23,15 @@ class UserNotifier extends Notifier<List<User>> {
     state = [...state, user];
   }
 
-  bool validateCredentials(String username, String password) {
+  bool validateCredentials(
+      String firstname, String lastname, String username, String password) {
     print(state);
 
-    return state
-        .any((user) => user.username == username && user.password == password);
+    return state.any((user) =>
+        user.username == username &&
+        user.password == password &&
+        user.firstName.toLowerCase() == firstname.toLowerCase() &&
+        user.lastName.toLowerCase() == lastname.toLowerCase());
   }
 }
 

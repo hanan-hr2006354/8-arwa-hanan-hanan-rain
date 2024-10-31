@@ -4,6 +4,7 @@ import 'package:quickmart/models/invoice.dart';
 import 'package:quickmart/models/customer.dart';
 import 'package:quickmart/providers/invoice_provider.dart';
 import 'package:quickmart/providers/customer_provider.dart';
+import 'package:quickmart/widgets/custom_app_bar.dart';
 
 class InvoicesScreen extends ConsumerStatefulWidget {
   const InvoicesScreen({super.key});
@@ -48,49 +49,16 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFFEFFF7),
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        toolbarHeight: MediaQuery.of(context).size.height / 7.5,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/images/background.PNG'),
-              fit: BoxFit.cover,
-            ),
-          ),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Invoices',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF915050),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Manage your invoices efficiently.',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: const Color(0xFF915050).withOpacity(0.7),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+      appBar: CustomAppBar(
+        titleText: 'Invoices',
+        subtitleText: 'Manage your invoice data',
       ),
       body: Padding(
-        padding: EdgeInsets.only(top: MediaQuery.of(context).size.height / 20),
+        padding: EdgeInsets.only(top: MediaQuery.of(context).size.height / 50),
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
@@ -156,18 +124,10 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Customer ID: ${invoice.customerId}',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
-                                    color: Color(0xFF915050),
-                                  ),
-                                ),
-                                Text(
                                   'Customer Name: ${invoice.customerName}',
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 12,
+                                    fontSize: 16,
                                     color: Color(0xFF915050),
                                   ),
                                 ),

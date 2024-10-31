@@ -28,9 +28,9 @@ class StartScreen extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(16.5),
                   child: Image.asset(
-                      'assets/images/background.PNG'), // Center image inside the circle
+                      'assets/images/invoice.webp'), 
                 ),
               ),
               const SizedBox(height: 15),
