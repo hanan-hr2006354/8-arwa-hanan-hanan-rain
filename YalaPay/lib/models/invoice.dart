@@ -2,7 +2,7 @@ class Invoice {
   final String id;
   final String customerId;
   final String customerName;
-  final double amount;
+  final double? amount;
   final String invoiceDate;
   final String dueDate;
   double? totalPayments;
@@ -14,8 +14,10 @@ class Invoice {
     required this.amount,
     required this.invoiceDate,
     required this.dueDate,
+    this.totalPayments = 0.0,
   });
 
+  double get balance => amount! - totalPayments!;
   factory Invoice.fromJson(Map<String, dynamic> json) {
     return Invoice(
       id: json['id'],
@@ -24,6 +26,7 @@ class Invoice {
       amount: json['amount'],
       invoiceDate: json['invoiceDate'],
       dueDate: json['dueDate'],
+      totalPayments: json['totalPayments'] ?? 0.0,
     );
   }
 
@@ -35,6 +38,7 @@ class Invoice {
       'amount': amount,
       'invoiceDate': invoiceDate,
       'dueDate': dueDate,
+      'totalPayments': totalPayments,
     };
   }
 }
