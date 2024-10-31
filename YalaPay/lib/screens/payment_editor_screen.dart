@@ -30,17 +30,10 @@ class UpdatePaymentScreen extends ConsumerWidget {
 
     final TextEditingController amountController = TextEditingController(
         text: isAddMode ? '' : payment!.amount.toString());
+    final TextEditingController modeController =
+        TextEditingController(text: isAddMode ? '' : payment!.paymentMode);
     DateTime selectedDate =
         isAddMode ? DateTime.now() : DateTime.parse(payment!.paymentDate);
-
-    // Predefined payment modes
-    final List<String> paymentModes = [
-      "Bank transfer",
-      "Credit card",
-      "Cheque",
-    ];
-
-    String? selectedMode = isAddMode ? null : payment!.paymentMode;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -67,35 +60,9 @@ class UpdatePaymentScreen extends ConsumerWidget {
                     keyboardType: TextInputType.number,
                   ),
                   const SizedBox(height: 12),
-                  // Dropdown for payment modes
-                  DropdownButtonFormField<String>(
-                    value: selectedMode,
-                    hint: const Text('Select Payment Mode'),
-                    items: paymentModes.map((mode) {
-                      return DropdownMenuItem<String>(
-                        value: mode,
-                        child: Text(mode),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      selectedMode = value; // Update selected mode
-                    },
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.grey[300],
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(
-                          color: Color.fromARGB(0, 162, 162, 163),
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(
-                            color: Color.fromARGB(0, 162, 162, 163),
-                            width: 1.0),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
+                  _buildTextField(
+                    controller: modeController,
+                    label: 'Payment Mode',
                   ),
                   const SizedBox(height: 12),
                   GestureDetector(
@@ -157,12 +124,6 @@ class UpdatePaymentScreen extends ConsumerWidget {
                           foregroundColor: Colors.white,
                         ),
                         onPressed: () {
-                          if (isAddMode && invoiceId == null) {
-                            // Show dialog if no invoice is selected
-                            _showInvoiceSelectionDialog(context);
-                            return;
-                          }
-
                           if (isAddMode) {
                             // Create a new payment object
                             final newPayment = Payment(
@@ -174,7 +135,7 @@ class UpdatePaymentScreen extends ConsumerWidget {
                                   double.tryParse(amountController.text) ?? 0,
                               paymentDate:
                                   DateFormat('yyyy-MM-dd').format(selectedDate),
-                              paymentMode: selectedMode ?? '',
+                              paymentMode: modeController.text,
                             );
 
                             ref
@@ -191,7 +152,7 @@ class UpdatePaymentScreen extends ConsumerWidget {
                                   double.tryParse(amountController.text) ?? 0,
                               paymentDate:
                                   DateFormat('yyyy-MM-dd').format(selectedDate),
-                              paymentMode: selectedMode ?? '',
+                              paymentMode: modeController.text,
                             );
 
                             ref
@@ -213,26 +174,6 @@ class UpdatePaymentScreen extends ConsumerWidget {
           ),
         ),
       ),
-    );
-  }
-
-  void _showInvoiceSelectionDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Invoice Selection Required'),
-          content: const Text('You should choose which invoice to add to.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
     );
   }
 
