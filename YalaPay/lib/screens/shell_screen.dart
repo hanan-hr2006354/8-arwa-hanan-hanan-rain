@@ -17,14 +17,14 @@ class _ShellScreenState extends State<ShellScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isWideScreen = screenWidth > 1150;
-    final isMediumScreen = screenWidth >= 840 && screenWidth < 1150;
+    final isWideScreen = screenWidth > 900;
+    final isMediumScreen = screenWidth >= 840 && screenWidth < 900;
 
     return Scaffold(
       drawer: isWideScreen ? null : _buildDrawer(),
       body: Row(
         children: [
-          if (isWideScreen || isMediumScreen) _buildSideBar(),
+          if (isWideScreen) _buildSideBar(),
           Expanded(
             child: Stack(
               children: [

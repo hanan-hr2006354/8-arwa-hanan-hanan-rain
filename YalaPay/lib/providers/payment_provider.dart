@@ -1,9 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:quickmart/models/payment.dart';
+import 'package:quickmart/models/payment.dart'; // Adjust the import as needed
 
 class PaymentNotifier extends Notifier<List<Payment>> {
   PaymentNotifier() {
@@ -22,40 +20,11 @@ class PaymentNotifier extends Notifier<List<Payment>> {
       for (var payment in paymentsMap) {
         addPayment(Payment.fromJson(payment));
       }
-      print("Data loaded into memory from JSON file.");
+      print("Payments loaded into memory from JSON file.");
     } catch (e) {
-      print('Error initializing invoices: $e');
+      print('Error initializing payments: $e');
     }
   }
-
-  Future<File> _getLocalFile() async {
-    final directory = await getApplicationDocumentsDirectory();
-    return File('${directory.path}/payments.json');
-  }
-
-  Future<void> savePaymentsToFile() async {
-    try {
-      final file = await _getLocalFile();
-      final jsonData =
-          jsonEncode(state.map((payment) => payment.toJson()).toList());
-      await file.writeAsString(jsonData);
-      print('Payments saved to file at ${file.path}');
-    } catch (e) {
-      print('Error saving payments to file: $e');
-    }
-  }
-//   Future<List<String>> paymentsModes() async {
-//   try {
-//     final file = File('payment-modes.json');
-//     final jsonString = await file.readAsString();
-//     final List<String> stringList = List<String>.from(jsonDecode(jsonString));
-
-//     return stringList;
-//   } catch (e) {
-//     print("Error reading string list from JSON file: $e");
-//     return [];
-//   }
-// }
 
   void addPayment(Payment payment) {
     state = [...state, payment];
@@ -76,10 +45,16 @@ class PaymentNotifier extends Notifier<List<Payment>> {
       return state;
     }
     return state.where((payment) {
-      //chech search method
-      return payment.id.toLowerCase().contains(query.toLowerCase()) ||
-          payment.id.toLowerCase().contains(query.toLowerCase());
+      return payment.amount.toLowerCase().contains(query.toLowerCase()) ||
+          payment.paymentDate.toLowerCase().contains(query.toLowerCase()) ||
+          payment.paymentMode.toLowerCase().contains(query.toLowerCase());
     }).toList();
+  }
+
+  void chooseInvoice(String invoiceId) {
+    final filteredPayments =
+        state.where((payment) => payment.invoiceNo == invoiceId).toList();
+    state = filteredPayments;
   }
 }
 
