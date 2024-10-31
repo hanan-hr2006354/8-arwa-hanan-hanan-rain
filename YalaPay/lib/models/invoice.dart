@@ -13,7 +13,7 @@ class Invoice {
     required this.customerName,
     required this.amount,
     required this.invoiceDate,
-    required this.dueDate,
+    required this.dueDate, required double totalPayments,
   });
 
   factory Invoice.fromJson(Map<String, dynamic> json) {
