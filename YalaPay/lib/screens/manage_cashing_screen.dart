@@ -9,6 +9,8 @@ import 'package:quickmart/models/bank_account.dart';
 import 'package:go_router/go_router.dart';
 
 class ManageCashingsScreen extends ConsumerStatefulWidget {
+  const ManageCashingsScreen({super.key});
+
   @override
   _ManageCashingsScreenState createState() => _ManageCashingsScreenState();
 }

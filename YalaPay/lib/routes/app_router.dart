@@ -4,7 +4,7 @@ import 'package:quickmart/screens/cheques_report_screen.dart';
 import 'package:quickmart/screens/customer_editor_screen.dart';
 import 'package:quickmart/screens/customers_screen.dart';
 import 'package:quickmart/screens/invoice_report_screen.dart';
-import 'package:quickmart/screens/invoices_screen.dart';
+
 import 'package:quickmart/screens/login_screen.dart';
 import 'package:quickmart/screens/dashboard_screen.dart';
 import 'package:quickmart/screens/manage_cashing_screen.dart';
@@ -69,7 +69,7 @@ class AppRouter {
               GoRoute(
                 name: invoice.name,
                 path: invoice.path,
-                builder: (context, state) => InvoicesScreen(),
+                builder: (context, state) => InvoiceReportScreen(),
               ),
               GoRoute(
                 name: payment.name,
