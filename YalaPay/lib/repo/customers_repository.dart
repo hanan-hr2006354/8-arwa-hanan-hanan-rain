@@ -2,6 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:quickmart/models/customer.dart';
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
 
 class CustomersRepository {
   List<Customer> customers = [];
@@ -13,10 +16,13 @@ class CustomersRepository {
     return customers;
   }
 
- List<Customer> getCustomers(String query) {
+  List<Customer> getCustomers(String query) {
     return customers
         .where((customer) =>
-            '${customer.contactDetails.firstName} ${customer.contactDetails.lastName}'
+            customer.contactDetails.firstName
+                .toLowerCase()
+                .contains(query.toLowerCase()) ||
+            customer.contactDetails.lastName
                 .toLowerCase()
                 .contains(query.toLowerCase()))
         .toList();
