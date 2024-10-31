@@ -1,216 +1,131 @@
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quickmart/models/invoice.dart';
-import 'package:quickmart/providers/invoice_provider.dart';
+import 'package:quickmart/repo/invoice_repository.dart';
+import 'package:quickmart/widgets/custom_app_bar.dart';
 
 class InvoiceReportScreen extends ConsumerStatefulWidget {
   const InvoiceReportScreen({super.key});
 
   @override
-
-  // ignore: library_private_types_in_public_api
   _InvoiceReportScreenState createState() => _InvoiceReportScreenState();
 }
 
 class _InvoiceReportScreenState extends ConsumerState<InvoiceReportScreen> {
-  final TextEditingController _fromDateController = TextEditingController();
-  final TextEditingController _toDateController = TextEditingController();
-  String _selectedStatus = "All";
+  DateTime? fromDate;
+  DateTime? toDate;
+  String selectedStatus = "All";
+  List<Map<String, dynamic>> filteredInvoices = [];
+  Map<String, dynamic> totals = {
+    "Pending": {"count": 0, "total": 0.0},
+    "Partially Paid": {"count": 0, "total": 0.0},
+    "Paid": {"count": 0, "total": 0.0},
+    "Grand Total": {"count": 0, "total": 0.0},
+  };
 
-  //State? get state => null;
-  Future<void> _selectDate(
-      BuildContext context, TextEditingController controller) async {
+  List<String> statuses = ["All", "Pending", "Partially Paid", "Paid"];
+
+  Future<void> _selectDate(BuildContext context, bool isFromDate) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
+      lastDate: DateTime.now(),
     );
-    if (picked != null) controller.text = picked.toIso8601String();
-  }
-
-  List<String> getinvoceStatus() {
-    try {
-      final jsonString = File('invoice-status.json').readAsStringSync();
-      return List<String>.from(jsonDecode(jsonString));
-    } catch (e) {
-      print("Error reading string list from JSON file: $e");
-      return [];
+    if (picked != null) {
+      setState(() {
+        if (isFromDate) {
+          fromDate = picked;
+        } else {
+          toDate = picked;
+        }
+      });
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final invoices = ref.watch(invoiceNotifierProvider);
-    final List<String> invoiceStatus = getinvoceStatus();
-    return Scaffold(
-      backgroundColor: Color.fromARGB(255, 222, 227, 182),
-      body: Stack(
+  Future<void> _generateReport(WidgetRef ref) async {
+    try {
+      final invoiceRepository = ref.read(invoiceRepositoryProvider);
+      final invoiceStatusList = await invoiceRepository.getInvoicesByStatus();
+
+      setState(() {
+        totals = {
+          "Pending": {"count": 0, "total": 0.0},
+          "Partially Paid": {"count": 0, "total": 0.0},
+          "Paid": {"count": 0, "total": 0.0},
+          "Grand Total": {"count": 0, "total": 0.0},
+        };
+
+        filteredInvoices = invoiceStatusList.where((invoiceItem) {
+          final invoice = invoiceItem['invoice'];
+          final status = invoiceItem['status'];
+          final invoiceDate = DateTime.parse(invoice.invoiceDate);
+
+          final isWithinDateRange = (fromDate == null ||
+                  invoiceDate.isAfter(fromDate!) ||
+                  invoiceDate.isAtSameMomentAs(fromDate!)) &&
+              (toDate == null ||
+                  invoiceDate.isBefore(toDate!) ||
+                  invoiceDate.isAtSameMomentAs(toDate!));
+
+          final matchesStatus =
+              selectedStatus == "All" || status == selectedStatus;
+
+          if (isWithinDateRange && matchesStatus) {
+            // Update totals
+            totals[status]["count"] += 1;
+            totals[status]["total"] += invoice.amount;
+            totals["Grand Total"]["count"] += 1;
+            totals["Grand Total"]["total"] += invoice.amount;
+
+            return true;
+          }
+          return false;
+        }).toList();
+      });
+    } catch (e) {
+      print("Error generating report: $e");
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    return "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}";
+  }
+
+  Widget _buildTotalsSection() {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+      decoration: BoxDecoration(
+        color: Colors.brown[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.brown[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: MediaQuery.of(context).size.height / 7.5,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/background.PNG'),
-                  fit: BoxFit.cover,
+          ...statuses.where((status) => status != "All").map((status) {
+            final count = totals[status]["count"];
+            final total = totals[status]["total"].toStringAsFixed(2);
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2.0),
+              child: Text(
+                "$status - Count: $count, Total: \$ $total",
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.brown[700],
                 ),
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Invoice Reports',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF915050),
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    ' ',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Color(0xFF915050).withOpacity(0.7),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            top: MediaQuery.of(context).size.height / 3.4,
-            left: 0,
-            right: 0,
-            child: ClipPath(
-              child: Container(
-                color: Color(0xFFFEFFF7),
-                padding: EdgeInsets.all(30),
-                child: Column(children: [
-//-------------
-                  TextField(
-                    controller: _fromDateController,
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      labelText: 'From Date',
-                      hintStyle: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 84, 45, 45),
-                      ),
-                    ),
-                    onTap: () => _selectDate(context, _fromDateController),
-                  ),
-
-                  TextField(
-                    controller: _toDateController,
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      labelText: 'To Date',
-                      hintStyle: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 84, 45, 45),
-                      ),
-                    ),
-                    onTap: () => _selectDate(context, _toDateController),
-                  ),
-
-                  DropdownButton<String>(
-                    value: _selectedStatus,
-                    items: invoiceStatus
-                        .map((status) => DropdownMenuItem(
-                              value: status,
-                              child: Text(
-                                status,
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color.fromARGB(255, 84, 45, 45),
-                                ),
-                              ),
-                            ))
-                        .toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() {
-                          _selectedStatus = value;
-                        });
-                      }
-                    },
-                    //  Text(''),
-                  ),
-
-                  ElevatedButton(
-                    onPressed: () {
-                      final fromDate = DateTime.parse(_fromDateController.text);
-                      final toDate = DateTime.parse(_toDateController.text);
-                      final filteredInvoices = getInvoicesByPeriodAndStatus(
-                        invoices: invoices,
-                        fromDate: fromDate,
-                        toDate: toDate,
-                        status: _selectedStatus,
-                      );
-
-                      final totalAmount =
-                          calculateTotalAmount(filteredInvoices);
-                      final totalBalance =
-                          calculateTotalBalance(filteredInvoices);
-
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          content: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              //textStyle
-                              Text(
-                                'Invoices found: ${invoiceCount(invoices)}',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color.fromARGB(255, 39, 3, 3),
-                                ),
-                              ),
-                              Text(
-                                'Total amount: $totalAmount',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color.fromARGB(255, 84, 45, 45),
-                                ),
-                              ),
-                              Text(
-                                'Total amount: $totalBalance',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color.fromARGB(255, 84, 45, 45),
-                                ),
-                              ),
-                              if (_selectedStatus == 'All')
-                                ...calculateTotalsByStatus(invoices)
-                                    .entries
-                                    .map((e) => Text('${e.key}: ${e.value}')),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                    child: Text('Submit'),
-                  )
-
-//-------------
-                ]),
-              ),
+            );
+          }),
+          Divider(),
+          Text(
+            "Grand Total - Count: ${totals["Grand Total"]["count"]}, Total: \$${totals["Grand Total"]["total"].toStringAsFixed(2)}",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.brown[800],
             ),
           ),
         ],
@@ -218,54 +133,119 @@ class _InvoiceReportScreenState extends ConsumerState<InvoiceReportScreen> {
     );
   }
 
-  //-----------
-  double calculateTotalAmount(List<Invoice> invoices) {
-    return invoices.fold(0.0, (sum, invoice) => sum + invoice.balance);
-  }
-
-  //-----------
-  double calculateTotalBalance(List<Invoice> invoices) {
-    return invoices.fold(0.0, (sum, invoice) => sum + invoice.balance);
-  }
-
-  //-----------
-  int invoiceCount(List<Invoice> invoices) {
-    return invoices.length;
-  }
-
-  //-----------
-  List<Invoice> getInvoicesByPeriodAndStatus({
-    required List<Invoice> invoices,
-    required DateTime fromDate,
-    required DateTime toDate,
-    required String status,
-  }) {
-    return invoices.where((invoice) {
-      final invoiceDate = DateTime.parse(invoice.invoiceDate);
-      final isWithinDateRange =
-          invoiceDate.isAfter(fromDate) && invoiceDate.isBefore(toDate);
-      final matchesStatus = (status == "All");
-
-      return isWithinDateRange && matchesStatus;
-    }).toList();
-  }
-  //-----------
-
-  Map<String, double> calculateTotalsByStatus(List<Invoice> invoices) {
-    final statuses = ["Pending", "Partially Paid", "Paid"];
-    final totals = <String, double>{};
-
-    for (var status in statuses) {
-      final filteredInvoices = getInvoicesByPeriodAndStatus(
-        invoices: invoices,
-        fromDate: DateTime(2000),
-        toDate: DateTime.now(),
-        status: status,
-      );
-      totals[status] = calculateTotalAmount(filteredInvoices);
-    }
-
-    totals["Grand Total"] = calculateTotalAmount(invoices);
-    return totals;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Color(0xFFFEFFF7),
+      appBar: CustomAppBar(
+        titleText: 'Invoice Reports',
+        subtitleText: 'Generate the report.',
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton.icon(
+                  icon: Icon(Icons.calendar_today, color: Colors.brown[500]),
+                  label: Text(
+                    toDate == null ? "To Date" : _formatDate(toDate!),
+                    style: TextStyle(color: Colors.brown[500]),
+                  ),
+                  onPressed: () => _selectDate(context, false),
+                ),
+                TextButton.icon(
+                  icon: Icon(Icons.calendar_today, color: Colors.brown[400]),
+                  label: Text(
+                    fromDate == null ? "From Date" : _formatDate(fromDate!),
+                    style: TextStyle(color: Colors.brown[400]),
+                  ),
+                  onPressed: () => _selectDate(context, true),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.1),
+            child: DropdownButtonFormField<String>(
+              decoration: InputDecoration(
+                labelText: "Select Status",
+                labelStyle: TextStyle(color: Colors.brown[401]),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.brown.shade400),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.brown.shade600),
+                ),
+              ),
+              value: selectedStatus,
+              items: statuses.map((status) {
+                return DropdownMenuItem(value: status, child: Text(status));
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedStatus = value!;
+                });
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 8.0),
+            child: ElevatedButton(
+              onPressed: () => _generateReport(ref),
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(double.infinity, 50),
+                backgroundColor: Colors.brown[400],
+                padding: EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text("Generate Report",
+                  style: TextStyle(color: Colors.white, fontSize: 25)),
+            ),
+          ),
+          Expanded(
+            child: filteredInvoices.isEmpty
+                ? Center(
+                    child: Text("No invoices found for the selected criteria"),
+                  )
+                : ListView.builder(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    itemCount: filteredInvoices.length,
+                    itemBuilder: (context, index) {
+                      final invoice = filteredInvoices[index]['invoice'];
+                      final status = filteredInvoices[index]['status'];
+                      final balance = filteredInvoices[index]['balance'];
+                      return Card(
+                        elevation: 3,
+                        margin: EdgeInsets.symmetric(vertical: 8),
+                        child: ListTile(
+                          title: Text(
+                            "Invoice ID: ${invoice.id}",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF915050),
+                            ),
+                          ),
+                          subtitle: Text(
+                            "Amount: \$${invoice.amount.toStringAsFixed(2)},\nStatus: $status,\nBalance: \$$balance,\nDate: ${_formatDate(DateTime.parse(invoice.invoiceDate))}",
+                            style: TextStyle(color: Colors.grey[620]),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+          if (selectedStatus == "All")
+            Padding(
+              padding: EdgeInsets.all(8),
+              child: _buildTotalsSection(),
+            ),
+        ],
+      ),
+    );
   }
 }
