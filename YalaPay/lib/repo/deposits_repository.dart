@@ -19,6 +19,7 @@ class DepositsRepository {
     return 'assets/data/return-reasons.json';
   }
 
+  // Load all deposits from the JSON file
   Future<List<Map<String, dynamic>>> loadDeposits() async {
     try {
       final path = await _depositsFilePath;
@@ -52,18 +53,14 @@ class DepositsRepository {
 
       depositsJson.removeWhere((deposit) => deposit['id'] == id);
 
-      await file.writeAsString(jsonEncode(depositsJson),
-          mode: FileMode.write, flush: true);
+      await file.writeAsString(jsonEncode(depositsJson), mode: FileMode.write, flush: true);
     } catch (e) {
       print("Error deleting deposit: $e");
     }
   }
 
   // Update deposit status with optional cashed date, return date, and return reason
-  Future<void> updateDepositStatus(String id, String status,
-      {DateTime? cashedDate,
-      DateTime? returnDate,
-      String? returnReason}) async {
+  Future<void> updateDepositStatus(String id, String status, {DateTime? cashedDate, DateTime? returnDate, String? returnReason}) async {
     try {
       final depositsPath = await _depositsFilePath;
       final chequesPath = await _chequesFilePath;
@@ -79,7 +76,7 @@ class DepositsRepository {
         if (deposit['id'] == id) {
           deposit['status'] = status;
           deposit['cashedDate'] = cashedDate?.toIso8601String();
-
+          
           if (status == "Cashed with Returns") {
             deposit['returnDate'] = returnDate?.toIso8601String();
             deposit['returnReason'] = returnReason;
@@ -95,8 +92,7 @@ class DepositsRepository {
       }
 
       // Save updated deposits data
-      await depositsFile.writeAsString(jsonEncode(depositsJson),
-          mode: FileMode.write, flush: true);
+      await depositsFile.writeAsString(jsonEncode(depositsJson), mode: FileMode.write, flush: true);
 
       // Update the status of each cheque in cheques.json
       await _updateChequesStatus(chequesPath, chequeNos, status);
@@ -106,8 +102,7 @@ class DepositsRepository {
   }
 
   // Update the status of all cheques in cheques.json associated with a given deposit
-  Future<void> _updateChequesStatus(
-      String chequesPath, List<int> chequeNos, String status) async {
+  Future<void> _updateChequesStatus(String chequesPath, List<int> chequeNos, String status) async {
     try {
       final chequesFile = File(chequesPath);
       final chequesData = await chequesFile.readAsString();
@@ -122,8 +117,7 @@ class DepositsRepository {
       }).toList();
 
       // Write updated data back to the cheques file
-      await chequesFile.writeAsString(jsonEncode(chequesJson),
-          mode: FileMode.write, flush: true);
+      await chequesFile.writeAsString(jsonEncode(chequesJson), mode: FileMode.write, flush: true);
     } catch (e) {
       print("Error updating cheques status: $e");
     }
