@@ -1,45 +1,76 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
-import 'package:quickmart/models/chequeTwo.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quickmart/models/cheque.dart';
+import 'package:quickmart/models/chequeTwo.dart'; // Ensure you have the ChequeTwo model imported
 
-class ChequeTwoNotifier extends StateNotifier<List<ChequeTwo>> {
-  ChequeTwoNotifier() : super([]); // Initial state of the cheques list
+class CheckTwoNotifier extends Notifier<List<ChequeTwo>> {
+  CheckTwoNotifier() {
+    _initializeState();
+  }
 
-  // Load cheques from a JSON file
-  Future<void> loadCheques() async {
+  @override
+  List<ChequeTwo> build() {
+    return [];
+  }
+
+  Future<void> _initializeState() async {
     try {
-      final String response =
-          await rootBundle.loadString('assets/data/cheques.json');
-      final List<dynamic> data = json.decode(response);
-      state = data.map((json) => ChequeTwo.fromJson(json)).toList();
+      final data = await rootBundle.loadString('assets/data/cheques.json');
+      final chequesMap = jsonDecode(data) as List;
+      for (var cheque in chequesMap) {
+        addCheque(ChequeTwo.fromJson(cheque));
+      }
+      print("Data loaded into memory from JSON file.");
     } catch (e) {
-      // Handle error (e.g., log the error, show a message)
-      print('Error loading cheques: $e');
+      print('Error initializing cheques: $e');
     }
   }
 
-  // Add a new cheque to the list
-  void addCheque(ChequeTwo newCheque) {
-    state = [...state, newCheque];
+  void addCheque(ChequeTwo cheque) {
+    state = [...state, cheque];
   }
 
-  // Update an existing cheque in the list
   void updateCheque(ChequeTwo updatedCheque) {
     state = state.map((cheque) {
       return cheque.chequeNo == updatedCheque.chequeNo ? updatedCheque : cheque;
     }).toList();
   }
 
-  // Search for a cheque by its number
-  List<ChequeTwo> searchByChequeNo(int? chequeNo) {
-    if (chequeNo == null) return []; // Return an empty list if chequeNo is null
-    return state.where((cheque) => cheque.chequeNo == chequeNo).toList();
+  void deleteCheque(int chequeNo) {
+    state = state.where((cheque) => cheque.chequeNo != chequeNo).toList();
+  }
+
+  List<ChequeTwo> searchCheques(String query) {
+    if (query.isEmpty) {
+      return state;
+    }
+    return state.where((cheque) {
+      return cheque.drawer.toLowerCase().contains(query.toLowerCase()) ||
+          cheque.chequeNo.toString().contains(query);
+    }).toList();
+  }
+
+  ChequeTwo searchByChequeNo(int chequeNo) {
+    final exists = state.any((cheque) => cheque.chequeNo == chequeNo);
+
+    if (exists) {
+      return state.firstWhere((cheque) => cheque.chequeNo == chequeNo);
+    } else {
+      return ChequeTwo(
+        chequeNo: chequeNo,
+        amount: 0.0,
+        drawer: "unknown",
+        bankName: "unknown",
+        status: "unknown",
+        receivedDate: DateTime.now(),
+        dueDate: DateTime.now(),
+        chequeImageUri: "unknown",
+      );
+    }
   }
 }
 
-// Define a provider for the ChequeTwoNotifier
-final chequetwoNotifierProvider =
-    StateNotifierProvider<ChequeTwoNotifier, List<ChequeTwo>>(
-  (ref) => ChequeTwoNotifier(),
-);
+final checkTwoNotifierProvider =
+    NotifierProvider<CheckTwoNotifier, List<ChequeTwo>>(
+        () => CheckTwoNotifier());
