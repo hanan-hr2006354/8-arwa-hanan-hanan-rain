@@ -8,7 +8,7 @@ import 'package:quickmart/providers/payment_provider.dart';
 import 'package:quickmart/widgets/custom_app_bar.dart';
 
 class PaymentsScreen extends ConsumerStatefulWidget {
-  const PaymentsScreen({Key? key}) : super(key: key);
+  const PaymentsScreen({super.key});
 
   @override
   ConsumerState<PaymentsScreen> createState() => _PaymentsScreenState();

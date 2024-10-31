@@ -28,6 +28,23 @@ class InvoiceNotifier extends Notifier<List<Invoice>> {
     }
   }
 
+  Future<File> _getLocalFile() async {
+    final directory = await getApplicationDocumentsDirectory();
+    return File('assets/data/invoices.json');
+  }
+
+  Future<void> saveInvoicesToFile() async {
+    try {
+      final file = await _getLocalFile();
+      final jsonData =
+          jsonEncode(state.map((invoice) => invoice.toJson()).toList());
+      await file.writeAsString(jsonData);
+      print('Invoices saved to file at ${file.path}');
+    } catch (e) {
+      print('Error saving invoices to file: $e');
+    }
+  }
+
   void addInvoice(Invoice invoice) {
     state = [...state, invoice];
   }
@@ -52,6 +69,9 @@ class InvoiceNotifier extends Notifier<List<Invoice>> {
     }).toList();
   }
 
+  Future<void> saveToFileOnDemand() async {
+    await saveInvoicesToFile();
+  }
   //-------------
 
 //----------
