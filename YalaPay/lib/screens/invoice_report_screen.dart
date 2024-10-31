@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quickmart/repo/invoice_repository.dart';
 import 'package:quickmart/widgets/custom_app_bar.dart';
@@ -17,6 +17,12 @@ class _InvoiceReportScreenState extends ConsumerState<InvoiceReportScreen> {
   DateTime? toDate;
   String selectedStatus = "All";
   List<Map<String, dynamic>> filteredInvoices = [];
+  Map<String, dynamic> totals = {
+    "Pending": {"count": 0, "total": 0.0},
+    "Partially Paid": {"count": 0, "total": 0.0},
+    "Paid": {"count": 0, "total": 0.0},
+    "Grand Total": {"count": 0, "total": 0.0},
+  };
 
   List<String> statuses = ["All", "Pending", "Partially Paid", "Paid"];
 
@@ -44,6 +50,13 @@ class _InvoiceReportScreenState extends ConsumerState<InvoiceReportScreen> {
       final invoiceStatusList = await invoiceRepository.getInvoicesByStatus();
 
       setState(() {
+        totals = {
+          "Pending": {"count": 0, "total": 0.0},
+          "Partially Paid": {"count": 0, "total": 0.0},
+          "Paid": {"count": 0, "total": 0.0},
+          "Grand Total": {"count": 0, "total": 0.0},
+        };
+
         filteredInvoices = invoiceStatusList.where((invoiceItem) {
           final invoice = invoiceItem['invoice'];
           final status = invoiceItem['status'];
@@ -59,7 +72,16 @@ class _InvoiceReportScreenState extends ConsumerState<InvoiceReportScreen> {
           final matchesStatus =
               selectedStatus == "All" || status == selectedStatus;
 
-          return isWithinDateRange && matchesStatus;
+          if (isWithinDateRange && matchesStatus) {
+            // Update totals
+            totals[status]["count"] += 1;
+            totals[status]["total"] += invoice.amount;
+            totals["Grand Total"]["count"] += 1;
+            totals["Grand Total"]["total"] += invoice.amount;
+
+            return true;
+          }
+          return false;
         }).toList();
       });
     } catch (e) {
@@ -69,6 +91,46 @@ class _InvoiceReportScreenState extends ConsumerState<InvoiceReportScreen> {
 
   String _formatDate(DateTime date) {
     return "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}";
+  }
+
+  Widget _buildTotalsSection() {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+      decoration: BoxDecoration(
+        color: Colors.brown[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.brown[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ...statuses.where((status) => status != "All").map((status) {
+            final count = totals[status]["count"];
+            final total = totals[status]["total"].toStringAsFixed(2);
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2.0),
+              child: Text(
+                "$status - Count: $count, Total: \$ $total",
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.brown[700],
+                ),
+              ),
+            );
+          }),
+          Divider(),
+          Text(
+            "Grand Total - Count: ${totals["Grand Total"]["count"]}, Total: \$${totals["Grand Total"]["total"].toStringAsFixed(2)}",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.brown[800],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -148,7 +210,7 @@ class _InvoiceReportScreenState extends ConsumerState<InvoiceReportScreen> {
           Expanded(
             child: filteredInvoices.isEmpty
                 ? Center(
-                    child: Text("No invoice found "),
+                    child: Text("No invoices found for the selected criteria"),
                   )
                 : ListView.builder(
                     padding: EdgeInsets.symmetric(horizontal: 8),
@@ -177,6 +239,11 @@ class _InvoiceReportScreenState extends ConsumerState<InvoiceReportScreen> {
                     },
                   ),
           ),
+          if (selectedStatus == "All")
+            Padding(
+              padding: EdgeInsets.all(8),
+              child: _buildTotalsSection(),
+            ),
         ],
       ),
     );
