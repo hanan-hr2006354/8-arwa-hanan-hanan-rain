@@ -1,9 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:quickmart/models/payment.dart';
+import 'package:quickmart/models/payment.dart'; // Adjust the import as needed
 
 class PaymentNotifier extends Notifier<List<Payment>> {
   PaymentNotifier() {
@@ -12,36 +10,17 @@ class PaymentNotifier extends Notifier<List<Payment>> {
 
   @override
   List<Payment> build() {
-    return [];
+    return []; // Initial state is an empty list
   }
 
   Future<void> _initializeState() async {
     try {
       final data = await rootBundle.loadString('assets/data/payments.json');
-      final paymentsMap = jsonDecode(data) as List;
-      for (var payment in paymentsMap) {
-        addPayment(Payment.fromJson(payment));
-      }
-      print("Data loaded into memory from JSON file.");
+      final List<dynamic> paymentsMap = jsonDecode(data);
+      state = paymentsMap.map((payment) => Payment.fromJson(payment)).toList();
+      print("Payments loaded into memory from JSON file.");
     } catch (e) {
-      print('Error initializing invoices: $e');
-    }
-  }
-
-  Future<File> _getLocalFile() async {
-    final directory = await getApplicationDocumentsDirectory();
-    return File('assets/data/payments.json');
-  }
-
-  Future<void> savePaymentsToFile() async {
-    try {
-      final file = await _getLocalFile();
-      final jsonData =
-          jsonEncode(state.map((payment) => payment.toJson()).toList());
-      await file.writeAsString(jsonData);
-      print('Payments saved to file at ${file.path}');
-    } catch (e) {
-      print('Error saving payments to file: $e');
+      print('Error initializing payments: $e');
     }
   }
 
@@ -55,19 +34,51 @@ class PaymentNotifier extends Notifier<List<Payment>> {
     }).toList();
   }
 
+  void deleteAllPayments() {
+    state = [];
+  }
+
+  Payment? getPaymentById(String id) {
+    return state.firstWhere((payment) => payment.id == id);
+  }
+
   void deletePayment(String id) {
     state = state.where((payment) => payment.id != id).toList();
   }
 
-  List<Payment> searchPayments(String query) {
-    if (query.isEmpty) {
-      return state;
-    }
+  List<Payment> getFilteredPayments(String query, String? selectedInvoiceId) {
     return state.where((payment) {
-      //chech search method
-      return payment.id.toLowerCase().contains(query.toLowerCase()) ||
-          payment.id.toLowerCase().contains(query.toLowerCase());
+      final matchesInvoice =
+          selectedInvoiceId == null || payment.invoiceNo == selectedInvoiceId;
+      final matchesQuery = query.isEmpty ||
+          payment.invoiceNo.toLowerCase().contains(query.toLowerCase()) ||
+          payment.amount
+              .toString()
+              .toLowerCase()
+              .contains(query.toLowerCase()) ||
+          payment.paymentMode.toLowerCase().contains(query.toLowerCase());
+
+      return matchesInvoice && matchesQuery;
     }).toList();
+  }
+
+  List<String> paymentModes = [];
+
+  Future<List<String>> loadPaymentModes() async {
+    try {
+      final String response =
+          await rootBundle.loadString('assets/payment-modes.json');
+      final data = json.decode(response);
+      paymentModes = List<String>.from(data['payment_modes']);
+      return paymentModes;
+    } catch (e) {
+      print('Error initializing invoices: $e');
+      return [];
+    } // Return the list of payment modes
+  }
+
+  List<String> getPaymentModes() {
+    return paymentModes;
   }
 }
 

@@ -9,19 +9,20 @@ class ChequeNotifier extends StateNotifier<List<Cheque>> {
 
   final ChequeRepository _repository;
 
-  // Reset environment and reload cheques from JSON
   Future<void> resetAndLoadCheques() async {
-    await _repository.resetData(); // Reset all data
-    state = await _repository.loadCheques(); // Load fresh data
+    await _repository.resetData();
+    state = await _repository.loadCheques();
   }
 
-  Future<void> createDeposit(List<Cheque> selectedCheques, String bankAccountNo) async {
+  Future<void> createDeposit(
+      List<Cheque> selectedCheques, String bankAccountNo) async {
     await _repository.createDeposit(selectedCheques, bankAccountNo);
-    state = await _repository.loadCheques(); // Reload data after update
+    state = await _repository.loadCheques();
   }
 }
 
-final chequeProvider = StateNotifierProvider<ChequeNotifier, List<Cheque>>((ref) {
+final chequeProvider =
+    StateNotifierProvider<ChequeNotifier, List<Cheque>>((ref) {
   final repository = ref.watch(chequeRepositoryProvider);
   return ChequeNotifier(repository);
 });

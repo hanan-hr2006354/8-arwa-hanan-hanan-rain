@@ -1,5 +1,4 @@
-// app_router.dart
-
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:quickmart/screens/cheques_report_screen.dart';
 import 'package:quickmart/screens/customer_editor_screen.dart';
@@ -9,6 +8,7 @@ import 'package:quickmart/screens/invoice_report_screen.dart';
 import 'package:quickmart/screens/login_screen.dart';
 import 'package:quickmart/screens/dashboard_screen.dart';
 import 'package:quickmart/screens/manage_cashing_screen.dart';
+import 'package:quickmart/screens/payment_editor_screen.dart';
 import 'package:quickmart/screens/payments_screen.dart';
 import 'package:quickmart/screens/shell_screen.dart';
 import 'package:quickmart/screens/start_screen.dart';
@@ -20,6 +20,8 @@ class AppRouter {
   static const main = (name: 'main', path: '/main');
   static const customer = (name: 'customer', path: '/customer');
   static const invoice = (name: 'invoice', path: '/invoice');
+  static const updatePayment =
+      (name: 'updatePayment', path: '/payment/update/:paymentId');
   static const payment = (name: 'payment', path: '/payment');
   static const manageCashing = (name: 'manageCashing', path: '/manageCashing');
   static const invoiceReport = (name: 'invoiceReport', path: '/invoiceReport');
@@ -94,6 +96,22 @@ class AppRouter {
                 path: chequeDeposits.path,
                 builder: (context, state) =>
                     ChequeDepositsScreen(), // Add builder for the new route
+              ),
+              GoRoute(
+                name: updatePayment.name, // Add the new update payment route
+                path: updatePayment.path,
+                builder: (context, state) {
+                  final paymentId = state.pathParameters['paymentId'];
+                  if (paymentId != null) {
+                    // Ensure paymentId is not null
+                    return UpdatePaymentScreen(
+                        paymentId:
+                            paymentId); // Pass the payment ID to the screen
+                  } else {
+                    // Handle the null case appropriately, e.g., return an error screen or similar
+                    return Center(child: Text('Payment ID not found'));
+                  }
+                },
               ),
             ],
             builder: (context, state, child) => ShellScreen(child: child),
