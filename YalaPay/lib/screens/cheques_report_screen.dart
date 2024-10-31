@@ -8,8 +8,6 @@ import 'package:quickmart/models/cheque.dart';
 import 'package:quickmart/widgets/custom_app_bar.dart';
 
 class ChequesReportScreen extends ConsumerStatefulWidget {
-  const ChequesReportScreen({super.key});
-
   @override
   _ChequesReportScreenState createState() => _ChequesReportScreenState();
 }
@@ -151,6 +149,8 @@ class _ChequesReportScreenState extends ConsumerState<ChequesReportScreen> {
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
             child: ElevatedButton(
               onPressed: () => _generateReport(ref),
+              child: Text("Generate Report",
+                  style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(double.infinity, 50), // Make button wider
                 backgroundColor: Colors.brown[400],
@@ -159,8 +159,6 @@ class _ChequesReportScreenState extends ConsumerState<ChequesReportScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: Text("Generate Report",
-                  style: TextStyle(color: Colors.white)),
             ),
           ),
           // Cheque List
