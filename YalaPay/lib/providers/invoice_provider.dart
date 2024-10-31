@@ -23,11 +23,10 @@ class InvoiceNotifier extends Notifier<List<Invoice>> {
         final invoicesMap = jsonDecode(data) as List;
         state = invoicesMap.map((invoice) => Invoice.fromJson(invoice)).toList();
       } else {
-        // If the JSON file does not exist, load from assets and save to file.
         final data = await rootBundle.loadString('assets/data/invoices.json');
         final invoicesMap = jsonDecode(data) as List;
         state = invoicesMap.map((invoice) => Invoice.fromJson(invoice)).toList();
-        await _saveToFile(); // Save loaded data to the file
+        await _saveToFile();
       }
       print("Data loaded into memory from JSON file.");
     } catch (e) {
@@ -53,19 +52,19 @@ class InvoiceNotifier extends Notifier<List<Invoice>> {
 
   void addInvoice(Invoice invoice) {
     state = [...state, invoice];
-    _saveToFile(); // Save the updated state to JSON file
+    _saveToFile();
   }
 
   void updateInvoice(Invoice updatedInvoice) {
     state = state.map((invoice) {
       return invoice.id == updatedInvoice.id ? updatedInvoice : invoice;
     }).toList();
-    _saveToFile(); // Save the updated state to JSON file
+    _saveToFile();
   }
 
   void deleteInvoice(String id) {
     state = state.where((invoice) => invoice.id != id).toList();
-    _saveToFile(); // Save the updated state to JSON file
+    _saveToFile();
   }
 
   List<Invoice> searchInvoices(String query) {
