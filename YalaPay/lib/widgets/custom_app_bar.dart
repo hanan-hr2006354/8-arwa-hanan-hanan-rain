@@ -5,10 +5,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String subtitleText;
 
   const CustomAppBar({
-    Key? key,
+    super.key,
     required this.titleText,
     required this.subtitleText,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

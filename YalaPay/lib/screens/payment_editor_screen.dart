@@ -114,7 +114,8 @@ class UpdatePaymentScreen extends ConsumerWidget {
                       onPressed: () {
                         final chequeNo = payment!.chequeNo;
                         if (chequeNo != null) {
-                          _showChequeDetailsDialog(context, ref, chequeNo);
+                          _showChequeDetailsDialog(
+                              context, ref, chequeNo as String);
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -235,8 +236,6 @@ class UpdatePaymentScreen extends ConsumerWidget {
   void _showAddChequeDialog(BuildContext context, WidgetRef ref) {
     final TextEditingController amountController = TextEditingController();
     final TextEditingController drawerController = TextEditingController();
-    final TextEditingController bankController = TextEditingController();
-    final TextEditingController statusController = TextEditingController();
     final TextEditingController receivedDateController =
         TextEditingController();
     final TextEditingController dueDateController = TextEditingController();
@@ -245,6 +244,8 @@ class UpdatePaymentScreen extends ConsumerWidget {
 
     DateTime? selectedReceivedDate;
     DateTime? selectedDueDate;
+    String? selectedStatus;
+    String? selectedBank;
 
     showDialog(
       context: context,
@@ -262,9 +263,13 @@ class UpdatePaymentScreen extends ConsumerWidget {
                 const SizedBox(height: 12),
                 _buildTextField(controller: drawerController, label: 'Payee'),
                 const SizedBox(height: 12),
-                _buildTextField(controller: bankController, label: 'Bank Name'),
+                _buildBankDropdown((value) {
+                  selectedBank = value; // Capture selected bank
+                }),
                 const SizedBox(height: 12),
-                _buildTextField(controller: statusController, label: 'Status'),
+                _buildStatusDropdown((value) {
+                  selectedStatus = value; // Capture selected status
+                }),
                 const SizedBox(height: 12),
                 GestureDetector(
                   onTap: () async {
@@ -322,7 +327,7 @@ class UpdatePaymentScreen extends ConsumerWidget {
             ElevatedButton(
               onPressed: () {
                 // Logic to save the cheque details
-                // You can create a new ChequeTwo object and save it here
+                // Create a new ChequeTwo object and save it here
                 Navigator.of(context).pop();
               },
               child: const Text('Save'),
@@ -339,113 +344,6 @@ class UpdatePaymentScreen extends ConsumerWidget {
     );
   }
 
-  void _showChequeDetailsDialog(
-      BuildContext context, WidgetRef ref, int chequeNo) {
-    final cheques = ref.read(chequetwoNotifierProvider);
-    final foundCheque = cheques.firstWhere((c) => c.chequeNo == chequeNo);
-
-    final TextEditingController amountController =
-        TextEditingController(text: foundCheque.amount.toString());
-    final TextEditingController drawerController =
-        TextEditingController(text: foundCheque.drawer);
-    final TextEditingController bankController =
-        TextEditingController(text: foundCheque.bankName);
-    final TextEditingController statusController =
-        TextEditingController(text: foundCheque.status);
-    final TextEditingController receivedDateController = TextEditingController(
-        text: DateFormat('yyyy-MM-dd').format(foundCheque.receivedDate));
-    final TextEditingController dueDateController = TextEditingController(
-        text: DateFormat('yyyy-MM-dd').format(foundCheque.dueDate));
-    final TextEditingController chequeImageUriController =
-        TextEditingController(text: foundCheque.chequeImageUri);
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Cheque Details - No: ${foundCheque.chequeNo}'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildTextField(
-                    controller: amountController,
-                    label: 'Amount',
-                    keyboardType: TextInputType.number),
-                const SizedBox(height: 12),
-                _buildTextField(controller: drawerController, label: 'Payee'),
-                const SizedBox(height: 12),
-                _buildTextField(controller: bankController, label: 'Bank Name'),
-                const SizedBox(height: 12),
-                _buildTextField(controller: statusController, label: 'Status'),
-                const SizedBox(height: 12),
-                _buildTextField(
-                    controller: receivedDateController,
-                    label: 'Received Date',
-                    keyboardType: TextInputType.none),
-                const SizedBox(height: 12),
-                _buildTextField(
-                    controller: dueDateController,
-                    label: 'Due Date',
-                    keyboardType: TextInputType.none),
-                const SizedBox(height: 12),
-                _buildTextField(
-                    controller: chequeImageUriController,
-                    label: 'Cheque Image URI'),
-                const SizedBox(height: 12),
-                if (foundCheque.chequeImageUri.isNotEmpty)
-                  Column(
-                    children: [
-                      const Text('Cheque Image:'),
-                      const SizedBox(height: 8),
-                      Image.asset(
-                        'assets/data/cheques/${foundCheque.chequeImageUri}',
-                        height: 150,
-                        width: 250,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Text('Image not available');
-                        },
-                      ),
-                    ],
-                  ),
-              ],
-            ),
-          ),
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                final updatedCheque = ChequeTwo(
-                  chequeNo: foundCheque.chequeNo,
-                  amount: double.tryParse(amountController.text) ?? 0,
-                  drawer: drawerController.text,
-                  bankName: bankController.text,
-                  status: statusController.text,
-                  receivedDate: DateTime.parse(receivedDateController.text),
-                  dueDate: DateTime.parse(dueDateController.text),
-                  chequeImageUri: chequeImageUriController.text,
-                );
-
-                ref
-                    .read(chequetwoNotifierProvider.notifier)
-                    .updateCheque(updatedCheque);
-
-                Navigator.of(context).pop();
-              },
-              child: const Text('Save'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Close'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -455,9 +353,9 @@ class UpdatePaymentScreen extends ConsumerWidget {
       controller: controller,
       keyboardType: keyboardType,
       decoration: InputDecoration(
+        labelText: label,
         fillColor: Colors.grey[300],
         filled: true,
-        labelText: label,
         enabledBorder: OutlineInputBorder(
           borderSide: const BorderSide(
             color: Color.fromARGB(0, 162, 162, 163),
@@ -470,6 +368,113 @@ class UpdatePaymentScreen extends ConsumerWidget {
           borderRadius: BorderRadius.circular(10),
         ),
       ),
+    );
+  }
+
+  Widget _buildStatusDropdown(ValueChanged<String?> onChanged) {
+    const List<String> statuses = [
+      "Awaiting",
+      "Deposited",
+      "Cashed",
+      "Returned"
+    ];
+
+    return DropdownButtonFormField<String>(
+      value: null, // No initial value
+      items: statuses.map((String status) {
+        return DropdownMenuItem<String>(
+          value: status,
+          child: Text(status),
+        );
+      }).toList(),
+      decoration: InputDecoration(
+        fillColor: Colors.grey[300],
+        filled: true,
+        labelText: 'Status',
+        enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(
+            color: Color.fromARGB(0, 162, 162, 163),
+          ),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(
+              color: Color.fromARGB(0, 162, 162, 163), width: 1.0),
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      onChanged: onChanged,
+      hint: const Text('Select Status'),
+    );
+  }
+
+  Widget _buildBankDropdown(ValueChanged<String?> onChanged) {
+    const List<String> banks = [
+      "Qatar National Bank",
+      "Doha Bank",
+      "Commercial Bank",
+      "Qatar International Islamic Bank",
+      "Qatar Islamic Bank",
+      "Qatar Development Bank",
+      "Arab Bank",
+      "Ahlibank",
+      "Mashreq Bank",
+      "HSBC Bank Middle East",
+      "BNP Paribas",
+      "Bank Saderat Iran",
+      "United Bank ltd.",
+      "Standard Chartered Bank",
+      "Masraf Al Rayan",
+      "International Bank of Qatar",
+      "Barwa Bank"
+    ];
+
+    return DropdownButtonFormField<String>(
+      value: null, // No initial value
+      items: banks.map((String bank) {
+        return DropdownMenuItem<String>(
+          value: bank,
+          child: Text(bank),
+        );
+      }).toList(),
+      decoration: InputDecoration(
+        fillColor: Colors.grey[300],
+        filled: true,
+        labelText: 'Bank',
+        enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(
+            color: Color.fromARGB(0, 162, 162, 163),
+          ),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(
+              color: Color.fromARGB(0, 162, 162, 163), width: 1.0),
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      onChanged: onChanged,
+      hint: const Text('Select Bank'),
+    );
+  }
+
+  void _showChequeDetailsDialog(
+      BuildContext context, WidgetRef ref, String chequeNo) {
+    // Implement your cheque details dialog here
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Cheque Details'),
+          content: Text('Details for Cheque No: $chequeNo'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

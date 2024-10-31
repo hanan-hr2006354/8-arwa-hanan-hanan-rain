@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:quickmart/widgets/custom_app_bar.dart';
 
 class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({super.key});
+
   @override
   _DashboardScreenState createState() => _DashboardScreenState();
 }

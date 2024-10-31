@@ -5,6 +5,7 @@ import 'package:quickmart/screens/customer_editor_screen.dart';
 import 'package:quickmart/screens/customers_screen.dart';
 import 'package:quickmart/screens/invoice_report_screen.dart';
 import 'package:quickmart/screens/invoices_screen.dart';
+
 import 'package:quickmart/screens/login_screen.dart';
 import 'package:quickmart/screens/dashboard_screen.dart';
 import 'package:quickmart/screens/manage_cashing_screen.dart';
@@ -20,6 +21,7 @@ class AppRouter {
   static const main = (name: 'main', path: '/main');
   static const customer = (name: 'customer', path: '/customer');
   static const invoice = (name: 'invoice', path: '/invoice');
+
   static const updatePayment =
       (name: 'updatePayment', path: '/payment/update/:paymentId');
   static const payment = (name: 'payment', path: '/payment');
@@ -69,7 +71,7 @@ class AppRouter {
               GoRoute(
                 name: invoice.name,
                 path: invoice.path,
-                builder: (context, state) => InvoicesScreen(),
+                builder: (context, state) => InvoiceReportScreen(),
               ),
               GoRoute(
                 name: payment.name,
@@ -85,6 +87,11 @@ class AppRouter {
                 name: invoiceReport.name,
                 path: invoiceReport.path,
                 builder: (context, state) => InvoiceReportScreen(),
+              ),
+              GoRoute(
+                name: main.name,
+                path: main.path,
+                builder: (context, state) => InvoicesScreen(),
               ),
               GoRoute(
                 name: chequesReport.name,

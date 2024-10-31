@@ -17,6 +17,11 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
   double screenWidth = 0;
   int columns = 1;
 
+  final TextEditingController _searchController = TextEditingController();
+  String? selectedCustomerId;
+  String? selectedCustomerName;
+  List<Invoice> filteredInvoices = [];
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -27,13 +32,6 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
       _ => 3,
     };
   }
-
-  final TextEditingController _searchController = TextEditingController();
-  String? selectedCustomerId;
-  String? selectedCustomerName;
-  List<Invoice> filteredInvoices = [];
-  String? invoiceDate;
-  String? dueDate;
 
   @override
   void initState() {
@@ -312,11 +310,9 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
                     _invoiceDateController.text.isEmpty ||
                     _dueDateController.text.isEmpty) {
                   setState(() {
-                    errorMessage = 'Please fill in all fields.';
+                    errorMessage = 'Please fill in all fields';
                   });
                   return;
-                } else {
-                  errorMessage = null;
                 }
 
                 final newInvoice = Invoice(
@@ -325,9 +321,9 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
                   customerName: selectedCustomerName!,
                   invoiceDate: _invoiceDateController.text,
                   dueDate: _dueDateController.text,
-                  amount: double.tryParse(_amountController.text) ?? 0,
+                  amount: double.tryParse(_amountController.text) ?? 0.0,
                   totalPayments:
-                      double.tryParse(_totalPaymentsController.text) ?? 0,
+                      double.tryParse(_totalPaymentsController.text) ?? 0.0,
                 );
 
                 ref
@@ -335,29 +331,13 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
                     .addInvoice(newInvoice);
                 Navigator.of(context).pop();
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 120, 50, 50),
-              ),
-              child: const Text(
-                'Add',
-                style: TextStyle(
-                  color: Color.fromARGB(255, 252, 254, 255),
-                ),
-              ),
+              child: const Text('Add'),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 250, 250, 250),
-              ),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(
-                  color: Color.fromARGB(255, 120, 50, 50),
-                ),
-              ),
+              child: const Text('Cancel'),
             ),
           ],
         );
@@ -371,17 +351,17 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
     final TextEditingController _dueDateController =
         TextEditingController(text: invoice.dueDate);
     final TextEditingController _amountController =
-        TextEditingController(text: invoice.amount.toString());
+        TextEditingController(text: invoice.amount?.toString());
     final TextEditingController _totalPaymentsController =
-        TextEditingController(text: invoice.totalPayments.toString());
+        TextEditingController(text: invoice.totalPayments?.toString());
 
-    String? errorMessage; // Variable to hold error message
+    String? errorMessage;
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: const Color.fromARGB(255, 224, 218, 204),
+          backgroundColor: const Color.fromARGB(255, 236, 222, 221),
           title: Center(
             child: const Text(
               'Update Invoice',
@@ -404,53 +384,52 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
                     ),
                   ),
                 DropdownButtonFormField<String>(
-                  value: selectedCustomerId,
+                  value: selectedCustomerId ?? invoice.customerId,
                   decoration: InputDecoration(labelText: 'Select Customer'),
                   items: customers.map((Customer customer) {
                     return DropdownMenuItem<String>(
                       value: customer.id,
-                      child: Text(customer.companyName),
+                      child: Text("${customer.companyName}",
+                          style: const TextStyle(
+                              color: Color.fromARGB(255, 171, 75, 56))),
                     );
                   }).toList(),
-                  onChanged: (String? value) {
+                  onChanged: (String? newValue) {
                     setState(() {
-                      selectedCustomerId = value;
+                      selectedCustomerId = newValue;
                       selectedCustomerName = customers
-                          .firstWhere((customer) => customer.id == value)
+                          .firstWhere((customer) => customer.id == newValue)
                           .companyName;
                     });
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please select a customer';
+                    }
+                    return null;
                   },
                 ),
                 TextField(
                   controller: _invoiceDateController,
-                  decoration: const InputDecoration(
-                    labelText: 'Invoice Date',
-                    hintText: 'Enter invoice date',
-                  ),
+                  decoration: const InputDecoration(labelText: 'Invoice Date'),
+                  readOnly: true,
                   onTap: () => _selectDate(context, _invoiceDateController),
                 ),
                 TextField(
                   controller: _dueDateController,
-                  decoration: const InputDecoration(
-                    labelText: 'Due Date',
-                    hintText: 'Enter due date',
-                  ),
+                  decoration: const InputDecoration(labelText: 'Due Date'),
+                  readOnly: true,
                   onTap: () => _selectDate(context, _dueDateController),
                 ),
                 TextField(
                   controller: _amountController,
-                  decoration: const InputDecoration(
-                    labelText: 'Amount',
-                    hintText: 'Enter amount',
-                  ),
+                  decoration: const InputDecoration(labelText: 'Amount'),
                   keyboardType: TextInputType.number,
                 ),
                 TextField(
                   controller: _totalPaymentsController,
-                  decoration: const InputDecoration(
-                    labelText: 'Total Payments',
-                    hintText: 'Enter total payments',
-                  ),
+                  decoration:
+                      const InputDecoration(labelText: 'Total Payments'),
                   keyboardType: TextInputType.number,
                 ),
               ],
@@ -459,20 +438,17 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
           actions: [
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 250, 250, 250),
-              ),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(
-                  color: Color.fromARGB(255, 120, 50, 50),
-                ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
+                if (selectedCustomerId == null ||
+                    _amountController.text.isEmpty ||
+                    _totalPaymentsController.text.isEmpty ||
+                    _invoiceDateController.text.isEmpty ||
+                    _dueDateController.text.isEmpty) {
+                  setState(() {
+                    errorMessage = 'Please fill in all fields';
+                  });
+                  return;
+                }
+
                 final updatedInvoice = Invoice(
                   customerId: selectedCustomerId ?? invoice.customerId,
                   customerName: selectedCustomerName ?? invoice.customerName,
@@ -483,10 +459,10 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
                       ? _dueDateController.text
                       : invoice.dueDate,
                   amount: _amountController.text.isNotEmpty
-                      ? double.tryParse(_amountController.text)
+                      ? double.tryParse(_amountController.text) ?? 0.0
                       : invoice.amount,
                   totalPayments: _totalPaymentsController.text.isNotEmpty
-                      ? double.tryParse(_totalPaymentsController.text)
+                      ? double.tryParse(_totalPaymentsController.text) ?? 0.0
                       : invoice.totalPayments,
                   id: invoice.id,
                 );
@@ -494,18 +470,15 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
                 ref
                     .read(invoiceNotifierProvider.notifier)
                     .updateInvoice(updatedInvoice);
-
                 Navigator.of(context).pop();
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 120, 76, 50),
-              ),
-              child: const Text(
-                'Update',
-                style: TextStyle(
-                  color: Color.fromARGB(255, 252, 254, 255),
-                ),
-              ),
+              child: const Text('Update'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
             ),
           ],
         );
@@ -515,14 +488,14 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
 
   Future<void> _selectDate(
       BuildContext context, TextEditingController controller) async {
-    final DateTime? pickedDate = await showDatePicker(
+    final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
-    if (pickedDate != null) {
-      controller.text = "${pickedDate.toLocal()}".split(' ')[0];
+    if (picked != null) {
+      controller.text = "${picked.toLocal()}".split(' ')[0];
     }
   }
 }
