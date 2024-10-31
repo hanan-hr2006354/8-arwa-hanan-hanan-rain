@@ -17,10 +17,17 @@ class InvoiceNotifier extends Notifier<List<Invoice>> {
 
   Future<void> _initializeState() async {
     try {
-      final data = await rootBundle.loadString('assets/data/invoices.json');
-      final invoicesMap = jsonDecode(data) as List;
-      for (var invoice in invoicesMap) {
-        addInvoice(Invoice.fromJson(invoice));
+      final file = await _localFile;
+      if (await file.exists()) {
+        final data = await file.readAsString();
+        final invoicesMap = jsonDecode(data) as List;
+        state = invoicesMap.map((invoice) => Invoice.fromJson(invoice)).toList();
+      } else {
+        // If the JSON file does not exist, load from assets and save to file.
+        final data = await rootBundle.loadString('assets/data/invoices.json');
+        final invoicesMap = jsonDecode(data) as List;
+        state = invoicesMap.map((invoice) => Invoice.fromJson(invoice)).toList();
+        await _saveToFile(); // Save loaded data to the file
       }
       print("Data loaded into memory from JSON file.");
     } catch (e) {
@@ -28,18 +35,37 @@ class InvoiceNotifier extends Notifier<List<Invoice>> {
     }
   }
 
+  Future<File> get _localFile async {
+    final directory = await getApplicationDocumentsDirectory();
+    return File('${directory.path}/invoices.json');
+  }
+
+  Future<void> _saveToFile() async {
+    try {
+      final file = await _localFile;
+      final List<Map<String, dynamic>> jsonData = state.map((invoice) => invoice.toJson()).toList();
+      await file.writeAsString(jsonEncode(jsonData));
+      print("Data saved to JSON file.");
+    } catch (e) {
+      print('Error saving invoices to file: $e');
+    }
+  }
+
   void addInvoice(Invoice invoice) {
     state = [...state, invoice];
+    _saveToFile(); // Save the updated state to JSON file
   }
 
   void updateInvoice(Invoice updatedInvoice) {
     state = state.map((invoice) {
       return invoice.id == updatedInvoice.id ? updatedInvoice : invoice;
     }).toList();
+    _saveToFile(); // Save the updated state to JSON file
   }
 
   void deleteInvoice(String id) {
     state = state.where((invoice) => invoice.id != id).toList();
+    _saveToFile(); // Save the updated state to JSON file
   }
 
   List<Invoice> searchInvoices(String query) {
