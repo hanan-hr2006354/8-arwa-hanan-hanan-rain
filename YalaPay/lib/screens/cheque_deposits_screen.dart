@@ -5,12 +5,27 @@ import 'package:quickmart/models/cheque.dart';
 import 'package:quickmart/repo/cheque_repository.dart';
 import 'package:quickmart/repo/deposits_repository.dart';
 
-class ChequeDepositsScreen extends StatelessWidget {
+class ChequeDepositsScreen extends StatefulWidget {
+  @override
+  _ChequeDepositsScreenState createState() => _ChequeDepositsScreenState();
+}
+
+class _ChequeDepositsScreenState extends State<ChequeDepositsScreen> {
   final DepositsRepository depositsRepository = DepositsRepository();
   final ChequeRepository chequeRepository = ChequeRepository();
+  
+  Future<List<Map<String, dynamic>>>? depositsFuture;
 
-  Future<List<Map<String, dynamic>>> fetchDeposits() async {
-    return await depositsRepository.loadDeposits(); // Fetch deposits directly from JSON
+  @override
+  void initState() {
+    super.initState();
+    loadDeposits();
+  }
+
+  void loadDeposits() {
+    setState(() {
+      depositsFuture = depositsRepository.loadDeposits(); // Refresh data
+    });
   }
 
   @override
@@ -54,7 +69,7 @@ class ChequeDepositsScreen extends StatelessWidget {
               color: Color(0xFFFEFFF7),
               padding: EdgeInsets.all(20),
               child: FutureBuilder<List<Map<String, dynamic>>>(
-                future: fetchDeposits(),
+                future: depositsFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
@@ -132,7 +147,7 @@ class ChequeDepositsScreen extends StatelessWidget {
                                     ElevatedButton.icon(
                                       onPressed: () async {
                                         await depositsRepository.deleteDeposit(deposit["id"]);
-                                        (context as Element).reassemble(); // Force rebuild to refresh data
+                                        loadDeposits(); // Reload data after deletion
                                       },
                                       icon: Icon(Icons.delete),
                                       label: Text('Delete'),
@@ -250,7 +265,7 @@ class ChequeDepositsScreen extends StatelessWidget {
                       returnReason: selectedReturnReason,
                     );
                     Navigator.pop(context);
-                    (context as Element).reassemble(); // Force screen rebuild to refresh data
+                    loadDeposits(); // Reload data after updating status
                   },
                   child: Text("Update"),
                 ),
