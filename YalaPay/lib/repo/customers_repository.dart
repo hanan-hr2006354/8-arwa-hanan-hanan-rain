@@ -10,9 +10,14 @@ class CustomersRepository {
   List<Customer> customers = [];
 
   Future<List<Customer>> getAllCustomers() async {
-    var response = await rootBundle.loadString('assets/data/customers.json');
-    List<dynamic> jsonData = jsonDecode(response);
-    customers = jsonData.map((item) => Customer.fromJson(item)).toList();
+    List<Customer> customers = [];
+    try {
+      var response = await rootBundle.loadString('assets/data/customers.json');
+      List<dynamic> jsonData = jsonDecode(response);
+      customers = jsonData.map((item) => Customer.fromJson(item)).toList();
+    } catch (e) {
+      print('Error loading customers: $e');
+    }
     return customers;
   }
 
