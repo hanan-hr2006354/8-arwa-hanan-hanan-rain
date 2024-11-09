@@ -70,9 +70,28 @@ class PaymentNotifier extends Notifier<List<Payment>> {
     }).toList();
   }
 
+  // Load payments from the repository and update the state
+  Future<void> loadPayments() async {
+    final payments = await paymentRepository.loadPayments();
+    state = payments;
+  }
+
   // Load payment modes through the repository
   Future<List<String>> loadPaymentModes() async {
     return await paymentRepository.loadPaymentModes();
+  }
+
+  // Update a payment by ID and refresh the state
+  Future<void> updatePaymentById(
+      String id, Map<String, dynamic> updatedPayment) async {
+    await paymentRepository.updatePayment(id, updatedPayment);
+    // Reload the payments to reflect the updated state
+    await loadPayments();
+  }
+
+  // Refresh payments from the repository (if needed for other operations)
+  Future<void> refreshPayments() async {
+    await loadPayments();
   }
 }
 

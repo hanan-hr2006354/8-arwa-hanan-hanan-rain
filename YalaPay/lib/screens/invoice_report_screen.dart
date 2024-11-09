@@ -75,16 +75,11 @@ class _InvoiceReportScreenState extends ConsumerState<InvoiceReportScreen> {
           return isWithinDateRange && matchesStatus;
         }).toList();
 
-        // Update totals based on the filtered invoices
         for (var item in filteredInvoices) {
           final status = item['status'];
           final amount = item['invoice'].amount as double;
-
-          // Increment the count and total for the matched status
           totals[status]["count"] += 1;
           totals[status]["total"] += amount;
-
-          // Increment the grand total count and amount
           totals["Grand Total"]["count"] += 1;
           totals["Grand Total"]["total"] += amount;
         }

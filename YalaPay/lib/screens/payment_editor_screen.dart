@@ -342,7 +342,11 @@ class UpdatePaymentScreen extends ConsumerWidget {
   void _showChequeDetailsDialog(
       BuildContext context, WidgetRef ref, int chequeNo) {
     final cheques = ref.read(chequetwoNotifierProvider);
+    print(
+        "--------Loaded cheques-----------: ${cheques.map((c) => c.chequeNo).toList()}");
     final foundCheque = cheques.firstWhere((c) => c.chequeNo == chequeNo);
+    print(
+        "--------Cheque found-----------: ${foundCheque.chequeNo}, Amount: ${foundCheque.amount}");
 
     final TextEditingController amountController =
         TextEditingController(text: foundCheque.amount.toString());
