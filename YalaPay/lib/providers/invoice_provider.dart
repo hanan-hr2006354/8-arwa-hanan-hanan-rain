@@ -102,8 +102,7 @@ class InvoiceNotifier extends Notifier<List<Invoice>> {
     final invoice = state.firstWhere((i) => i.id == invoiceId);
     double totalPayments = payments
         .where((payment) =>
-            payment.invoiceNo == invoiceId &&
-            payment.paymentMode.toLowerCase() != 'cheque')
+            payment.invoiceNo == invoiceId && payment.paymentMode != "Cheque")
         .fold(0.0, (sum, payment) => sum + payment.amount);
 
     return invoice.amount - totalPayments;

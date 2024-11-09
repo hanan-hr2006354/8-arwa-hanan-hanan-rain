@@ -31,7 +31,7 @@ class _InvoiceEditorState extends ConsumerState<InvoiceEditor> {
 
   @override
   Widget build(BuildContext context) {
-    final payments = ref.watch(paymentNotifierProvider);
+    final payments = ref.watch(paymentNotifierProvider.notifier);
     final invoices = ref.watch(invoiceNotifierProvider);
     final customers = ref.watch(customerNotifierProvider);
     final index = invoices.indexWhere((i) => i.id == widget.invoiceId);

@@ -50,7 +50,11 @@ class PaymentNotifier extends Notifier<List<Payment>> {
     return state.firstWhere((payment) => payment.id == id);
   }
 
-  // Filter payments based on a query and an optional invoice ID
+  void deletePaymentsByInvoice(String invoiceId) async {
+    state = state.where((payment) => payment.invoiceNo != invoiceId).toList();
+    await paymentRepository.savePayments(state);
+  }
+
   List<Payment> getFilteredPayments(String query, String? selectedInvoiceId) {
     return state.where((payment) {
       final matchesInvoice =

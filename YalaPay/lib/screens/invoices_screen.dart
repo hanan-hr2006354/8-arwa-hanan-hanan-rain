@@ -49,6 +49,7 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
 
     final customers = ref.watch(customerNotifierProvider);
     final payments = ref.watch(paymentNotifierProvider);
+    final paymentsNotifier = ref.watch(paymentNotifierProvider.notifier);
 
     _filterInvoices();
 
@@ -192,6 +193,10 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
                                                   .read(invoiceNotifierProvider
                                                       .notifier)
                                                   .deleteInvoice(invoice.id);
+
+                                              paymentsNotifier
+                                                  .deletePaymentsByInvoice(
+                                                      invoice.id);
                                             },
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor:
