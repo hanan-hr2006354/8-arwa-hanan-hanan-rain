@@ -219,7 +219,7 @@ class _CustomerEditorState extends ConsumerState<CustomerEditor> {
                           child: const Text('Add'),
                         ),
                     ],
-                  ),
+                  )
                 ],
               ),
             ),

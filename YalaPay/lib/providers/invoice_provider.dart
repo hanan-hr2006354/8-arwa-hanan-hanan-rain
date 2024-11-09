@@ -84,6 +84,12 @@ class InvoiceNotifier extends Notifier<List<Invoice>> {
     }).toList();
   }
 
+  void deleteInvoicesByCustomerId(String customerId) {
+    state = state.where((invoice) => invoice.customerId != customerId).toList();
+    _saveToFile();
+    _initializeState();
+  }
+
   double getAllPaymentsTotal(String invoiceId, List<Payment> payments) {
     double totalPayments = payments
         .where((payment) => payment.invoiceNo == invoiceId)
