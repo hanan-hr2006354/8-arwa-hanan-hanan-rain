@@ -22,22 +22,23 @@ class _CustomerEditorState extends ConsumerState<CustomerEditor> {
     final customers = ref.watch(customerNotifierProvider);
     final index = customers.indexWhere((c) => c.id == widget.customerId);
     final customer = index == -1 ? null : customers[index];
+
     final TextEditingController firstNameController =
-        TextEditingController(text: customer?.contactDetails.firstName);
+        TextEditingController(text: customer?.contactDetails.firstName ?? "");
     final TextEditingController lastNameController =
-        TextEditingController(text: customer?.contactDetails.lastName);
+        TextEditingController(text: customer?.contactDetails.lastName ?? "");
     final TextEditingController companyNameController =
-        TextEditingController(text: customer?.companyName);
+        TextEditingController(text: customer?.companyName ?? "");
     final TextEditingController phoneController =
-        TextEditingController(text: customer?.contactDetails.mobile);
+        TextEditingController(text: customer?.contactDetails.mobile ?? "");
     final TextEditingController emailController =
-        TextEditingController(text: customer?.contactDetails.email);
+        TextEditingController(text: customer?.contactDetails.email ?? "");
     final TextEditingController streetController =
-        TextEditingController(text: customer?.address.street);
+        TextEditingController(text: customer?.address.street ?? "");
     final TextEditingController cityController =
-        TextEditingController(text: customer?.address.city);
+        TextEditingController(text: customer?.address.city ?? "");
     final TextEditingController countryController =
-        TextEditingController(text: customer?.address.country);
+        TextEditingController(text: customer?.address.country ?? "");
 
     List<Map<String, dynamic>> items = [
       {'label': 'First Name', 'controller': firstNameController},
@@ -107,8 +108,7 @@ class _CustomerEditorState extends ConsumerState<CustomerEditor> {
                         TextField(
                           controller: item['controller'],
                           decoration: InputDecoration(
-                            fillColor:
-                                Colors.grey[300], // Change to bright grey
+                            fillColor: Colors.grey[300],
                             filled: true,
                             labelText: item['label'],
                             enabledBorder: OutlineInputBorder(

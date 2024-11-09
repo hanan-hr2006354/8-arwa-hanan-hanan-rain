@@ -2,15 +2,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quickmart/models/user.dart';
 import 'package:quickmart/repo/user_repository.dart';
 
-class UserNotifier extends Notifier<List<User>> {
-  final usersRepository = UsersRepository();
-  @override
-  List<User> build() {
-    initializeState();
-    return [];
+class UserNotifier extends StateNotifier<List<User>> {
+  final UsersRepository usersRepository;
+
+  UserNotifier(this.usersRepository) : super([]) {
+    _initializeState();
   }
 
-  void initializeState() async {
+  Future<void> _initializeState() async {
     state = await usersRepository.getUsers();
   }
 
@@ -23,5 +22,6 @@ class UserNotifier extends Notifier<List<User>> {
   }
 }
 
-final userNotifierProvider =
-    NotifierProvider<UserNotifier, List<User>>(() => UserNotifier());
+final userNotifierProvider = StateNotifierProvider<UserNotifier, List<User>>(
+  (ref) => UserNotifier(UsersRepository()),
+);

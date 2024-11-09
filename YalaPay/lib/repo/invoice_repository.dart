@@ -8,12 +8,12 @@ import '../models/invoice.dart';
 class InvoiceRepository {
   Future<String> get _invoicesFilePath async {
     final directory = await getApplicationDocumentsDirectory();
-    return 'assets/data/invoices.json';
+    return '${directory.path}/invoices.json';
   }
 
   Future<String> get _paymentsFilePath async {
     final directory = await getApplicationDocumentsDirectory();
-    return 'assets/data/payments.json';
+    return '${directory.path}/payments.json';
   }
 
   Future<void> resetData() async {
@@ -51,14 +51,13 @@ class InvoiceRepository {
 
     List<Map<String, dynamic>> invoiceStatusList = [];
     for (var invoice in invoices) {
-      // Calculate total payments made for this invoice
       double totalPayments = payments
           .where((payment) => payment.invoiceNo == invoice.id)
           .fold(0.0, (sum, payment) => sum + payment.amount);
 
       double balance = invoice.amount - totalPayments;
       String status;
-      
+
       if (balance == 0) {
         status = "Paid";
       } else if (balance < invoice.amount) {
@@ -67,7 +66,6 @@ class InvoiceRepository {
         status = "Pending";
       }
 
-      // Add invoice details along with calculated balance and status
       invoiceStatusList.add({
         'invoice': invoice,
         'status': status,
@@ -91,18 +89,25 @@ class InvoiceRepository {
   }
 
   Future<void> saveInvoices(List<Invoice> invoices) async {
-    final path = await _invoicesFilePath;
-    final invoicesJson = invoices.map((invoice) => invoice.toJson()).toList();
-    await File(path).writeAsString(jsonEncode(invoicesJson), flush: true);
+    try {
+      final path = await _invoicesFilePath;
+      final invoicesJson = invoices.map((invoice) => invoice.toJson()).toList();
+      await File(path).writeAsString(jsonEncode(invoicesJson), flush: true);
+    } catch (e) {
+      print("Error saving invoices: $e");
+    }
   }
 
   Future<void> updateInvoice(Invoice updatedInvoice) async {
     try {
       final invoices = await loadInvoices();
-      final index = invoices.indexWhere((invoice) => invoice.id == updatedInvoice.id);
+      final index =
+          invoices.indexWhere((invoice) => invoice.id == updatedInvoice.id);
       if (index != -1) {
         invoices[index] = updatedInvoice;
         await saveInvoices(invoices);
+      } else {
+        print("Invoice not found for update");
       }
     } catch (e) {
       print("Error updating invoice: $e");
@@ -112,22 +117,17 @@ class InvoiceRepository {
   Future<void> deleteInvoice(String id) async {
     try {
       final invoices = await loadInvoices();
-      final updatedInvoices = invoices.where((invoice) => invoice.id != id).toList();
+      final updatedInvoices =
+          invoices.where((invoice) => invoice.id != id).toList();
       await saveInvoices(updatedInvoices);
     } catch (e) {
       print("Error deleting invoice: $e");
     }
   }
 
-  Future<List<Invoice>> searchInvoices(String query) async {
-    final invoices = await loadInvoices();
-    if (query.isEmpty) {
-      return invoices;
-    }
-    return invoices.where((invoice) {
-      return invoice.customerName.toLowerCase().contains(query.toLowerCase()) ||
-          invoice.id.toLowerCase().contains(query.toLowerCase());
-    }).toList();
+  Future<void> revertChanges() async {
+    await loadInvoices();
+    print("Changes have been reverted to the last saved state.");
   }
 }
 

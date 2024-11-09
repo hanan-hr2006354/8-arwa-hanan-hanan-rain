@@ -21,8 +21,11 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     screenWidth = MediaQuery.of(context).size.width;
-    columns =
-        switch (screenWidth) { < 840 => 1, >= 840 && < 1150 => 2, _ => 3 };
+    columns = switch (screenWidth) {
+      < 840 => 1,
+      >= 840 && < 1150 => 2,
+      _ => 3,
+    };
   }
 
   @override

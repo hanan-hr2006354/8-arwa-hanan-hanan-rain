@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quickmart/models/invoice.dart';
+import 'package:flutter/services.dart';
+import 'package:quickmart/models/payment.dart';
 
 class InvoiceNotifier extends Notifier<List<Invoice>> {
   InvoiceNotifier() {
@@ -21,11 +22,13 @@ class InvoiceNotifier extends Notifier<List<Invoice>> {
       if (await file.exists()) {
         final data = await file.readAsString();
         final invoicesMap = jsonDecode(data) as List;
-        state = invoicesMap.map((invoice) => Invoice.fromJson(invoice)).toList();
+        state =
+            invoicesMap.map((invoice) => Invoice.fromJson(invoice)).toList();
       } else {
         final data = await rootBundle.loadString('assets/data/invoices.json');
         final invoicesMap = jsonDecode(data) as List;
-        state = invoicesMap.map((invoice) => Invoice.fromJson(invoice)).toList();
+        state =
+            invoicesMap.map((invoice) => Invoice.fromJson(invoice)).toList();
         await _saveToFile();
       }
       print("Data loaded into memory from JSON file.");
@@ -42,7 +45,8 @@ class InvoiceNotifier extends Notifier<List<Invoice>> {
   Future<void> _saveToFile() async {
     try {
       final file = await _localFile;
-      final List<Map<String, dynamic>> jsonData = state.map((invoice) => invoice.toJson()).toList();
+      final List<Map<String, dynamic>> jsonData =
+          state.map((invoice) => invoice.toJson()).toList();
       await file.writeAsString(jsonEncode(jsonData));
       print("Data saved to JSON file.");
     } catch (e) {
@@ -53,6 +57,7 @@ class InvoiceNotifier extends Notifier<List<Invoice>> {
   void addInvoice(Invoice invoice) {
     state = [...state, invoice];
     _saveToFile();
+    _initializeState();
   }
 
   void updateInvoice(Invoice updatedInvoice) {
@@ -60,11 +65,13 @@ class InvoiceNotifier extends Notifier<List<Invoice>> {
       return invoice.id == updatedInvoice.id ? updatedInvoice : invoice;
     }).toList();
     _saveToFile();
+    _initializeState();
   }
 
   void deleteInvoice(String id) {
     state = state.where((invoice) => invoice.id != id).toList();
     _saveToFile();
+    _initializeState();
   }
 
   List<Invoice> searchInvoices(String query) {
@@ -75,6 +82,25 @@ class InvoiceNotifier extends Notifier<List<Invoice>> {
       return invoice.customerName.toLowerCase().contains(query.toLowerCase()) ||
           invoice.id.toLowerCase().contains(query.toLowerCase());
     }).toList();
+  }
+
+  double getAllPaymentsTotal(String invoiceId, List<Payment> payments) {
+    double totalPayments = payments
+        .where((payment) => payment.invoiceNo == invoiceId)
+        .fold(0.0, (sum, payment) => sum + payment.amount);
+
+    return totalPayments;
+  }
+
+  double getBalance(String invoiceId, List<Payment> payments) {
+    final invoice = state.firstWhere((i) => i.id == invoiceId);
+    double totalPayments = payments
+        .where((payment) =>
+            payment.invoiceNo == invoiceId &&
+            payment.paymentMode.toLowerCase() != 'cheque')
+        .fold(0.0, (sum, payment) => sum + payment.amount);
+
+    return invoice.amount - totalPayments;
   }
 }
 

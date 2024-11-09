@@ -4,33 +4,40 @@ import 'package:quickmart/repo/customers_repository.dart';
 
 class CustomersNotifier extends Notifier<List<Customer>> {
   final CustomersRepository _customersRepository = CustomersRepository();
+
   @override
   List<Customer> build() {
-    loadCustomers();
+    _loadCustomers();
     return [];
   }
 
-  void loadCustomers() async {
-    var customers = await _customersRepository.getAllCustomers();
-    state = customers;
+  // Load the customers from the repository
+  Future<void> _loadCustomers() async {
+    await _customersRepository.loadCustomers();
+    state = _customersRepository.getAllCustomers();
   }
 
+  // Search customers based on the query
   void getCustomers(String query) {
     state = _customersRepository.getCustomers(query);
   }
 
+  // Add a new customer
   void addCustomer(Customer customer) {
-    var updatedCustomers = _customersRepository.addCustomer(customer);
-    state = List.from(updatedCustomers);
+    _customersRepository.addCustomer(customer);
+    state = List.from(_customersRepository.getAllCustomers());
   }
 
+  // Update an existing customer
   void updateCustomer(Customer customer) {
-    var updatesCustomers = _customersRepository.updateCustomer(customer);
-    state = List.from(updatesCustomers);
+    _customersRepository.updateCustomer(customer);
+    state = List.from(_customersRepository.getAllCustomers());
   }
 
+  // Remove a customer
   void removeCustomer(Customer customer) {
-    state = _customersRepository.removeCustomer(customer);
+    _customersRepository.removeCustomer(customer);
+    state = List.from(_customersRepository.getAllCustomers());
   }
 }
 

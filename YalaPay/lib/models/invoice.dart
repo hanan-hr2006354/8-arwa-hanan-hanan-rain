@@ -1,11 +1,14 @@
+import 'dart:convert';
+
+import 'package:quickmart/models/payment.dart';
+
 class Invoice {
-  final String id;
-  final String customerId;
-  final String customerName;
-  final double amount;
-  final String invoiceDate;
-  final String dueDate;
-  double? totalPayments;
+  String id;
+  String customerId;
+  String customerName;
+  double amount;
+  String invoiceDate;
+  String dueDate;
 
   Invoice({
     required this.id,

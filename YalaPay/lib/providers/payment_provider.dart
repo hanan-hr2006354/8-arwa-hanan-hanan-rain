@@ -1,7 +1,8 @@
-import 'dart:convert';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quickmart/models/payment.dart'; // Adjust the import as needed
+import 'package:quickmart/models/payment.dart';
+import 'package:quickmart/repo/payment_repository.dart';
+
+final paymentRepository = PaymentRepository();
 
 class PaymentNotifier extends Notifier<List<Payment>> {
   PaymentNotifier() {
@@ -10,42 +11,46 @@ class PaymentNotifier extends Notifier<List<Payment>> {
 
   @override
   List<Payment> build() {
-    return []; // Initial state is an empty list
+    return []; // Initial state as an empty list
   }
 
   Future<void> _initializeState() async {
-    try {
-      final data = await rootBundle.loadString('assets/data/payments.json');
-      final List<dynamic> paymentsMap = jsonDecode(data);
-      state = paymentsMap.map((payment) => Payment.fromJson(payment)).toList();
-      print("Payments loaded into memory from JSON file.");
-    } catch (e) {
-      print('Error initializing payments: $e');
-    }
+    final payments = await paymentRepository.loadPayments();
+    state = payments;
   }
 
-  void addPayment(Payment payment) {
+  // Add a new payment and save the updated list
+  void addPayment(Payment payment) async {
     state = [...state, payment];
+    await paymentRepository.savePayments(state);
   }
 
-  void updatePayment(Payment updatedPayment) {
+  // Update an existing payment and save the updated list
+  void updatePayment(Payment updatedPayment) async {
     state = state.map((payment) {
       return payment.id == updatedPayment.id ? updatedPayment : payment;
     }).toList();
+    await paymentRepository.savePayments(state);
   }
 
-  void deleteAllPayments() {
+  // Delete a specific payment by ID and save the updated list
+  void deletePayment(String id) async {
+    state = state.where((payment) => payment.id != id).toList();
+    await paymentRepository.savePayments(state);
+  }
+
+  // Clear all payments and save the updated empty list
+  void deleteAllPayments() async {
     state = [];
+    await paymentRepository.savePayments(state);
   }
 
+  // Retrieve a payment by its ID
   Payment? getPaymentById(String id) {
     return state.firstWhere((payment) => payment.id == id);
   }
 
-  void deletePayment(String id) {
-    state = state.where((payment) => payment.id != id).toList();
-  }
-
+  // Filter payments based on a query and an optional invoice ID
   List<Payment> getFilteredPayments(String query, String? selectedInvoiceId) {
     return state.where((payment) {
       final matchesInvoice =
@@ -57,28 +62,13 @@ class PaymentNotifier extends Notifier<List<Payment>> {
               .toLowerCase()
               .contains(query.toLowerCase()) ||
           payment.paymentMode.toLowerCase().contains(query.toLowerCase());
-
       return matchesInvoice && matchesQuery;
     }).toList();
   }
 
-  List<String> paymentModes = [];
-
+  // Load payment modes through the repository
   Future<List<String>> loadPaymentModes() async {
-    try {
-      final String response =
-          await rootBundle.loadString('assets/payment-modes.json');
-      final data = json.decode(response);
-      paymentModes = List<String>.from(data['payment_modes']);
-      return paymentModes;
-    } catch (e) {
-      print('Error initializing invoices: $e');
-      return [];
-    } // Return the list of payment modes
-  }
-
-  List<String> getPaymentModes() {
-    return paymentModes;
+    return await paymentRepository.loadPaymentModes();
   }
 }
 

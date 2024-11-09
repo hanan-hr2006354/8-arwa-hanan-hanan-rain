@@ -4,30 +4,25 @@ class Payment {
   final double amount;
   final String paymentDate;
   final String paymentMode;
-  final int? chequeNo; // Optional field
-
+  final int? chequeNo;
   Payment({
     required this.id,
     required this.invoiceNo,
     required this.amount,
     required this.paymentDate,
     required this.paymentMode,
-    this.chequeNo, // Optional parameter
+    this.chequeNo,
   });
-
-  // Factory constructor to create a Payment instance from JSON
   factory Payment.fromJson(Map<String, dynamic> json) {
     return Payment(
       id: json['id'] as String,
       invoiceNo: json['invoiceNo'] as String,
-      amount: (json['amount'] as num).toDouble(), // Convert to double
+      amount: (json['amount'] as num).toDouble(),
       paymentDate: json['paymentDate'] as String,
       paymentMode: json['paymentMode'] as String,
-      chequeNo: json['chequeNo'], // Use null-aware operator
+      chequeNo: json['chequeNo'],
     );
   }
-
-  // Method to convert Payment instance to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,

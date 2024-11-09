@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:quickmart/screens/cheques_report_screen.dart';
 import 'package:quickmart/screens/customer_editor_screen.dart';
 import 'package:quickmart/screens/customers_screen.dart';
+import 'package:quickmart/screens/edit_invoice_screen.dart';
 import 'package:quickmart/screens/invoice_report_screen.dart';
 import 'package:quickmart/screens/invoices_screen.dart';
 import 'package:quickmart/screens/login_screen.dart';
@@ -20,6 +21,8 @@ class AppRouter {
   static const main = (name: 'main', path: '/main');
   static const customer = (name: 'customer', path: '/customer');
   static const invoice = (name: 'invoice', path: '/invoice');
+  static const updateInvoice =
+      (name: 'updateInvoice', path: '/invoice/update/:invoiceId');
   static const updatePayment =
       (name: 'updatePayment', path: '/payment/update/:paymentId');
   static const payment = (name: 'payment', path: '/payment');
@@ -94,22 +97,29 @@ class AppRouter {
               GoRoute(
                 name: chequeDeposits.name,
                 path: chequeDeposits.path,
-                builder: (context, state) =>
-                    ChequeDepositsScreen(), // Add builder for the new route
+                builder: (context, state) => ChequeDepositsScreen(),
               ),
               GoRoute(
-                name: updatePayment.name, // Add the new update payment route
+                name: updatePayment.name,
                 path: updatePayment.path,
                 builder: (context, state) {
                   final paymentId = state.pathParameters['paymentId'];
                   if (paymentId != null) {
-                    // Ensure paymentId is not null
-                    return UpdatePaymentScreen(
-                        paymentId:
-                            paymentId); // Pass the payment ID to the screen
+                    return UpdatePaymentScreen(paymentId: paymentId);
                   } else {
-                    // Handle the null case appropriately, e.g., return an error screen or similar
                     return Center(child: Text('Payment ID not found'));
+                  }
+                },
+              ),
+              GoRoute(
+                name: updateInvoice.name,
+                path: updateInvoice.path,
+                builder: (context, state) {
+                  final invoiceId = state.pathParameters['invoiceId'];
+                  if (invoiceId != null) {
+                    return InvoiceEditor(invoiceId: invoiceId);
+                  } else {
+                    return Center(child: Text('Invoice ID not found'));
                   }
                 },
               ),

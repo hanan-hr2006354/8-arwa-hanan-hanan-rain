@@ -85,39 +85,53 @@ class _DashboardScreenState extends State<DashboardScreen> {
         borderRadius: BorderRadius.circular(10),
       ),
       elevation: 5,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Stack(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Flexible(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF54514A),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxHeight: 200, // Fixed maximum height for the card
+          maxWidth: 300, // Optional: Set a fixed width
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF54514A),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Icon(
+                    icon,
+                    color: const Color(0xFF54514A),
+                    size: 24,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: rows,
                   ),
                 ),
-                const SizedBox(height: 10),
-                Column(children: rows),
-              ],
-            ),
-            Positioned(
-              top: 3,
-              right: 3,
-              child: Icon(
-                icon,
-                color: const Color(0xFF54514A),
-                size: 24,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
