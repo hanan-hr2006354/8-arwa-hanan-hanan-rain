@@ -80,7 +80,8 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                           value: invoice.id,
                           child: Padding(
                             padding: const EdgeInsets.all(10.0),
-                            child: Text(invoice.customerName),
+                            child: Text(
+                                "${invoice.customerName}, amount: ${invoice.amount}"),
                           ),
                         );
                       }).toList(),
