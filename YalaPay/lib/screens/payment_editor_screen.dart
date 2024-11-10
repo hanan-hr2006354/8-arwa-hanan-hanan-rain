@@ -6,7 +6,6 @@ import 'package:quickmart/models/cheque.dart';
 import 'package:quickmart/models/payment.dart';
 import 'package:quickmart/models/chequeTwo.dart';
 import 'package:quickmart/providers/cheque_provider.dart';
-import 'package:quickmart/providers/cheque_two_provider.dart';
 import 'package:quickmart/providers/payment_provider.dart';
 import 'package:quickmart/widgets/custom_app_bar.dart';
 import 'package:intl/intl.dart';
