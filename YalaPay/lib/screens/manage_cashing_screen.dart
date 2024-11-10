@@ -91,7 +91,9 @@ class _ManageCashingsScreenState extends ConsumerState<ManageCashingsScreen> {
                             itemCount: cheques.length,
                             itemBuilder: (context, index) {
                               final cheque = cheques[index];
-                              final daysRemaining = cheque.dueDate.difference(DateTime.now()).inDays;
+                              final daysRemaining = cheque.dueDate
+                                  .difference(DateTime.now())
+                                  .inDays;
 
                               return CheckboxListTile(
                                 title: Text(
@@ -106,22 +108,28 @@ class _ManageCashingsScreenState extends ConsumerState<ManageCashingsScreen> {
                                   style: TextStyle(
                                     color: cheque.status == "Deposited"
                                         ? Colors.grey
-                                        : (daysRemaining >= 0 ? Colors.green : Colors.red),
+                                        : (daysRemaining >= 0
+                                            ? Colors.green
+                                            : Colors.red),
                                   ),
                                 ),
-                                value: selectedChequeNumbers.contains(cheque.chequeNo),
+                                value: selectedChequeNumbers
+                                    .contains(cheque.chequeNo),
                                 onChanged: cheque.status == "Deposited"
                                     ? null
                                     : (bool? value) {
                                         setState(() {
                                           if (value == true) {
-                                            selectedChequeNumbers.add(cheque.chequeNo);
+                                            selectedChequeNumbers
+                                                .add(cheque.chequeNo);
                                           } else {
-                                            selectedChequeNumbers.remove(cheque.chequeNo);
+                                            selectedChequeNumbers
+                                                .remove(cheque.chequeNo);
                                           }
                                         });
                                       },
-                                controlAffinity: ListTileControlAffinity.leading,
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
                               );
                             },
                           ),
@@ -137,7 +145,8 @@ class _ManageCashingsScreenState extends ConsumerState<ManageCashingsScreen> {
                           items: bankAccounts.map((account) {
                             return DropdownMenuItem(
                               value: account,
-                              child: Text('${account.bank} - ${account.accountNo}'),
+                              child: Text(
+                                  '${account.bank} - ${account.accountNo}'),
                             );
                           }).toList(),
                         ),
@@ -146,11 +155,14 @@ class _ManageCashingsScreenState extends ConsumerState<ManageCashingsScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             ElevatedButton(
-                              onPressed: selectedBankAccount == null || selectedChequeNumbers.isEmpty
+                              onPressed: selectedBankAccount == null ||
+                                      selectedChequeNumbers.isEmpty
                                   ? null
                                   : () async {
                                       final selectedCheques = cheques
-                                          .where((cheque) => selectedChequeNumbers.contains(cheque.chequeNo))
+                                          .where((cheque) =>
+                                              selectedChequeNumbers
+                                                  .contains(cheque.chequeNo))
                                           .toList();
                                       await chequeRepository.createDeposit(
                                         selectedCheques,
@@ -163,7 +175,8 @@ class _ManageCashingsScreenState extends ConsumerState<ManageCashingsScreen> {
                                     },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.brown[400],
-                                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 15),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30),
                                 ),
@@ -182,7 +195,8 @@ class _ManageCashingsScreenState extends ConsumerState<ManageCashingsScreen> {
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.brown[400],
-                                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 15),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30),
                                 ),

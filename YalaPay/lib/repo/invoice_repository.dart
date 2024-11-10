@@ -56,21 +56,27 @@ class InvoiceRepository {
           .fold(0.0, (sum, payment) => sum + payment.amount);
 
       double balance = invoice.amount - totalPayments;
-      //================
-      String status = balance == 0
-          ? "Paid"
-          : (balance < invoice.amount ? "Partially Paid" : "Pending");
+      String status;
+
+      if (balance == 0) {
+        status = "Paid";
+      } else if (balance < invoice.amount) {
+        status = "Partially Paid";
+      } else {
+        status = "Pending";
+      }
 
       invoiceStatusList.add({
         'invoice': invoice,
         'status': status,
-        'balance': balance,
+        'paymentsTotal': totalPayments.toStringAsFixed(2),
+        'balance': balance.toStringAsFixed(2),
+        'invoiceAmount': invoice.amount.toStringAsFixed(2),
       });
     }
 
     return invoiceStatusList;
   }
-  //-----------
 
   Future<void> addInvoice(Invoice invoice) async {
     try {

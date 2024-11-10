@@ -90,6 +90,10 @@ class InvoiceNotifier extends Notifier<List<Invoice>> {
     _initializeState();
   }
 
+  List<Invoice> getInvoicesByCustomerId(String customerId) {
+    return state.where((invoice) => invoice.customerId == customerId).toList();
+  }
+
   double getAllPaymentsTotal(String invoiceId, List<Payment> payments) {
     double totalPayments = payments
         .where((payment) => payment.invoiceNo == invoiceId)

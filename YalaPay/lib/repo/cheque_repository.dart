@@ -44,7 +44,7 @@ class ChequeRepository {
       return cheques.firstWhere(
         (cheque) => cheque.chequeNo == chequeNo,
         orElse: () => Cheque(
-          chequeNo: 0, 
+          chequeNo: 0,
           amount: 0.0,
           drawer: "Unknown",
           bankName: "Unknown",
@@ -133,6 +133,40 @@ class ChequeRepository {
     final path = await _chequesFilePath;
     final chequesData = await File(path).readAsString();
     print("Cheques JSON content: $chequesData");
+  }
+
+  // Add a new cheque to the list
+  void addCheque(List<Cheque> cheques, Cheque newCheque) {
+    cheques.add(newCheque);
+  }
+
+  // Update an existing cheque in the list
+  void updateCheque(List<Cheque> cheques, Cheque updatedCheque) {
+    for (int i = 0; i < cheques.length; i++) {
+      if (cheques[i].chequeNo == updatedCheque.chequeNo) {
+        cheques[i] = updatedCheque;
+        break;
+      }
+    }
+  }
+
+  List<Cheque> searchByChequeNo(List<Cheque> cheques, int? chequeNo) {
+    if (chequeNo == null) return [];
+    return cheques.where((cheque) => cheque.chequeNo == chequeNo).toList();
+  }
+
+  Future<void> deleteCheque(int chequeNo) async {
+    try {
+      final path = await _chequesFilePath;
+      final file = File(path);
+      final chequesData = await file.readAsString();
+      List chequesJson = jsonDecode(chequesData);
+      chequesJson.removeWhere((cheque) => cheque['chequeNo'] == chequeNo);
+      await file.writeAsString(jsonEncode(chequesJson),
+          mode: FileMode.write, flush: true);
+    } catch (e) {
+      print("Error deleting cheque: $e");
+    }
   }
 }
 

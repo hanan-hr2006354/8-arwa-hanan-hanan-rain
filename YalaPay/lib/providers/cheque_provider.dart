@@ -19,6 +19,21 @@ class ChequeNotifier extends StateNotifier<List<Cheque>> {
     await _repository.createDeposit(selectedCheques, bankAccountNo);
     state = await _repository.loadCheques();
   }
+
+  void addCheque(Cheque newCheque) {
+    _repository.addCheque(state, newCheque);
+    state = [...state]; // Trigger state update
+  }
+
+  // Update an existing cheque in the list
+  void updateCheque(Cheque updatedCheque) {
+    _repository.updateCheque(state, updatedCheque);
+    state = [...state];
+  }
+
+  List<Cheque> searchByChequeNo(int? chequeNo) {
+    return _repository.searchByChequeNo(state, chequeNo);
+  }
 }
 
 final chequeProvider =

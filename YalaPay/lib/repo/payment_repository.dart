@@ -30,38 +30,6 @@ class PaymentRepository {
     }
   }
 
-  Future<String> get _paymentsFilePath async {
-    final directory = await getApplicationDocumentsDirectory();
-    return 'assets/data/payments.json';
-  }
-
-  // Update a specific payment in the payments.json file
-  Future<void> updatePayment(
-      String id, Map<String, dynamic> updatedPayment) async {
-    try {
-      final path = await _paymentsFilePath;
-      final file = File(path);
-      final paymentsData = await file.readAsString();
-      List<Map<String, dynamic>> paymentsList =
-          List<Map<String, dynamic>>.from(jsonDecode(paymentsData));
-
-      // Find and update the payment with the given ID
-      final index = paymentsList.indexWhere((payment) => payment['id'] == id);
-      if (index != -1) {
-        paymentsList[index] = updatedPayment;
-        print("Payment updated: $id"); //check updatind
-      } else {
-        print("Payment with ID $id not found."); //check updatind
-      }
-
-      // Write updated list back to the JSON file
-      await file.writeAsString(jsonEncode(paymentsList),
-          mode: FileMode.write, flush: true);
-    } catch (e) {
-      print("Error updating payment: $e");
-    }
-  }
-
   Future<void> savePayments(List<Payment> payments) async {
     try {
       final path = await _getPaymentsFilePath();

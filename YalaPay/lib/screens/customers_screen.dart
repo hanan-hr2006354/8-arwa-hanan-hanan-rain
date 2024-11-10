@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:quickmart/providers/customer_provider.dart';
 import 'package:quickmart/providers/invoice_provider.dart';
+import 'package:quickmart/providers/payment_provider.dart';
 import 'package:quickmart/routes/app_router.dart';
 import 'package:quickmart/widgets/add_customer.dart';
 import 'package:quickmart/widgets/customer_card.dart';
@@ -32,6 +33,7 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
   @override
   Widget build(BuildContext context) {
     final invoices = ref.watch(invoiceNotifierProvider.notifier);
+    final payments = ref.watch(paymentNotifierProvider.notifier);
 
     final customers = ref.watch(customerNotifierProvider);
     return Scaffold(
@@ -138,7 +140,18 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                           .read(customerNotifierProvider.notifier)
                           .removeCustomer(customers[index]);
 
-                      invoices.deleteInvoicesByCustomerId(customer.id);
+                      // First, delete the customer
+                      ref
+                          .read(customerNotifierProvider.notifier)
+                          .removeCustomer(customers[index]);
+
+                      final invoicesbyCustomer =
+                          invoices.getInvoicesByCustomerId(customer.id);
+
+                      for (final i in invoicesbyCustomer) {
+                        invoices.deleteInvoice(i.id);
+                        payments.deletePaymentsByInvoice(i.id);
+                      }
                     },
                   );
                 },

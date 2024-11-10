@@ -37,8 +37,7 @@ class _ShellScreenState extends State<ShellScreen> {
                       return IconButton(
                         icon: Icon(Icons.menu, color: Colors.black),
                         onPressed: () {
-                          if (isWideScreen) {
-                          } else {
+                          if (!isWideScreen) {
                             Scaffold.of(context).openDrawer();
                           }
                         },
@@ -166,7 +165,6 @@ class _ShellScreenState extends State<ShellScreen> {
             leading: Icon(Icons.receipt_long),
             title: Text('Invoices Report'),
             onTap: () {
-              Navigator.pop(context);
               context.go(AppRouter.invoiceReport.path);
             },
           ),
@@ -174,7 +172,6 @@ class _ShellScreenState extends State<ShellScreen> {
             leading: Icon(Icons.report),
             title: Text('Cheques Report'),
             onTap: () {
-              Navigator.pop(context);
               context.go(AppRouter.chequesReport.path);
             },
           ),

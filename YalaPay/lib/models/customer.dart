@@ -6,14 +6,12 @@ class Customer {
   final String companyName;
   final Address address;
   final ContactDetails contactDetails;
-
   Customer({
     required this.id,
     required this.companyName,
     required this.address,
     required this.contactDetails,
   });
-
   factory Customer.fromJson(Map<String, dynamic> json) {
     return Customer(
       id: json['id'],

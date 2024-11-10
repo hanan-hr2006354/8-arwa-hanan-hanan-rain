@@ -72,17 +72,17 @@ class _InvoiceReportScreenState extends ConsumerState<InvoiceReportScreen> {
           final matchesStatus =
               selectedStatus == "All" || status == selectedStatus;
 
-          return isWithinDateRange && matchesStatus;
-        }).toList();
+          if (isWithinDateRange && matchesStatus) {
+            // Update totals
+            totals[status]["count"] += 1;
+            totals[status]["total"] += invoice.amount;
+            totals["Grand Total"]["count"] += 1;
+            totals["Grand Total"]["total"] += invoice.amount;
 
-        for (var item in filteredInvoices) {
-          final status = item['status'];
-          final amount = item['invoice'].amount as double;
-          totals[status]["count"] += 1;
-          totals[status]["total"] += amount;
-          totals["Grand Total"]["count"] += 1;
-          totals["Grand Total"]["total"] += amount;
-        }
+            return true;
+          }
+          return false;
+        }).toList();
       });
     } catch (e) {
       print("Error generating report: $e");
@@ -105,10 +105,12 @@ class _InvoiceReportScreenState extends ConsumerState<InvoiceReportScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ...statuses.where((status) => status != "All").map((status) {
+            final count = totals[status]["count"];
+            final total = totals[status]["total"].toStringAsFixed(2);
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 2.0),
               child: Text(
-                "$status - Count: ${totals[status]["count"]}, Total: \$${totals[status]["total"].toStringAsFixed(2)}",
+                "$status - Count: $count, Total: \$ $total",
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -190,8 +192,7 @@ class _InvoiceReportScreenState extends ConsumerState<InvoiceReportScreen> {
             ),
           ),
           Padding(
-            padding:
-                const EdgeInsets.symmetric(vertical: 10.0, horizontal: 8.0),
+            padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 8.0),
             child: ElevatedButton(
               onPressed: () => _generateReport(ref),
               style: ElevatedButton.styleFrom(
@@ -230,7 +231,7 @@ class _InvoiceReportScreenState extends ConsumerState<InvoiceReportScreen> {
                             ),
                           ),
                           subtitle: Text(
-                            "Amount: \$${invoice.amount.toStringAsFixed(2)},\nStatus: $status - Balance: \$${balance.toStringAsFixed(2)},\nDate: ${_formatDate(DateTime.parse(invoice.invoiceDate))}",
+                            "Amount: \$${invoice.amount.toStringAsFixed(2)},\nStatus: $status,\nBalance: \$$balance,\nDate: ${_formatDate(DateTime.parse(invoice.invoiceDate))}",
                             style: TextStyle(color: Colors.grey[620]),
                           ),
                         ),
