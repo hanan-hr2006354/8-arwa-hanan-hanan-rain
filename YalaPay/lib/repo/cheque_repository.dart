@@ -135,9 +135,20 @@ class ChequeRepository {
     print("Cheques JSON content: $chequesData");
   }
 
-  // Add a new cheque to the list
-  void addCheque(List<Cheque> cheques, Cheque newCheque) {
-    cheques.add(newCheque);
+  Future<void> addCheque(Cheque newCheque) async {
+    try {
+      final path = await _chequesFilePath;
+      final file = File(path);
+      final chequesData = await file.readAsString();
+      List chequesJson = jsonDecode(chequesData);
+
+      chequesJson.add(newCheque
+          .toJson()); // Convert newCheque to JSON and add it to the list
+      await file.writeAsString(jsonEncode(chequesJson),
+          mode: FileMode.write, flush: true);
+    } catch (e) {
+      print("Error adding cheque: $e");
+    }
   }
 
   // Update an existing cheque in the list

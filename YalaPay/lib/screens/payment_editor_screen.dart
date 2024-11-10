@@ -121,8 +121,9 @@ class UpdatePaymentScreen extends ConsumerWidget {
                   if (payment?.chequeNo != null)
                     ElevatedButton(
                       onPressed: () {
-                        final chequeNo = payment!.chequeNo;
+                        final chequeNo = payment?.chequeNo;
                         if (chequeNo != null) {
+                          print("${chequeNo}");
                           _showChequeDetailsDialog(context, ref, chequeNo);
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -421,7 +422,18 @@ Future<Cheque?> _showAddChequeDialog(
 void _showChequeDetailsDialog(
     BuildContext context, WidgetRef ref, int chequeNo) {
   final cheques = ref.read(chequeProvider);
-  final foundCheque = cheques.firstWhere((c) => c.chequeNo == chequeNo);
+  final foundCheque = cheques.firstWhere(
+    (c) => c.chequeNo == chequeNo,
+    orElse: () => Cheque(
+        chequeNo: -1,
+        amount: 0,
+        drawer: '',
+        bankName: '',
+        status: '',
+        receivedDate: DateTime.now(),
+        dueDate: DateTime.now(),
+        chequeImageUri: ''),
+  );
 
   final TextEditingController amountController =
       TextEditingController(text: foundCheque.amount.toString());

@@ -20,9 +20,13 @@ class ChequeNotifier extends StateNotifier<List<Cheque>> {
     state = await _repository.loadCheques();
   }
 
-  void addCheque(Cheque newCheque) {
-    _repository.addCheque(state, newCheque);
-    state = [...state]; // Trigger state update
+  Future<void> addCheque(Cheque newCheque) async {
+    await _repository.addCheque(newCheque);
+    state = await _repository.loadCheques();
+  }
+
+  List<Cheque> getCheques() {
+    return state;
   }
 
   // Update an existing cheque in the list
