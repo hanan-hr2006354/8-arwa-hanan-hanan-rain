@@ -196,11 +196,18 @@ class _CustomerEditorState extends ConsumerState<CustomerEditor> {
                                 validData = false;
                               });
                             } else {
+                              // Generate a unique ID for the new customer
+                              int newId = customers.isEmpty
+                                  ? 1
+                                  : customers
+                                          .map((c) => int.tryParse(c.id) ?? 0)
+                                          .reduce((a, b) => a > b ? a : b) +
+                                      1;
                               ref
                                   .read(customerNotifierProvider.notifier)
                                   .addCustomer(
                                     Customer(
-                                      id: (customers.length + 1).toString(),
+                                      id: newId.toString(),
                                       companyName: companyNameController.text,
                                       address: Address(
                                           street: streetController.text,

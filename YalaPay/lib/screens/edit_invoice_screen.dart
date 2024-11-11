@@ -60,7 +60,20 @@ class _InvoiceEditorState extends ConsumerState<InvoiceEditor> {
     }
 
     String generateInvoiceId() {
-      return (invoices.length + 1).toString();
+      int newId = 1;
+
+      if (invoices.isNotEmpty) {
+        final maxId = invoices
+            .map((invoice) => int.tryParse(invoice.id) ?? 0)
+            .reduce((value, element) => value > element ? value : element);
+
+        newId = maxId + 1;
+        while (invoices.any((invoice) => invoice.id == newId.toString())) {
+          newId++;
+        }
+      }
+
+      return newId.toString();
     }
 
     return Scaffold(
