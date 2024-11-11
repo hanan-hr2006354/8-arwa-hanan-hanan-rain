@@ -171,15 +171,6 @@ class UpdatePaymentScreen extends ConsumerWidget {
                             ref
                                 .read(paymentNotifierProvider.notifier)
                                 .addPayment(newPayment);
-                            // if (cheque != null) {
-                            //   print("Cheque Not Null");
-                            //   ref
-                            //       .read(chequeProvider.notifier)
-                            //       .addCheque(cheque);
-                            // } else {
-                            //   print(
-                            //       "Cheque is null, cannot add cheque details.");
-                            // }
 
                             print("Added payment: ${newPayment.id}");
                           } else {
@@ -438,16 +429,14 @@ void _showChequeDetailsDialog(
       TextEditingController(text: foundCheque.amount.toString());
   final TextEditingController drawerController =
       TextEditingController(text: foundCheque.drawer);
-  final TextEditingController bankController =
-      TextEditingController(text: foundCheque.bankName);
-  final TextEditingController statusController =
-      TextEditingController(text: foundCheque.status);
   final TextEditingController receivedDateController = TextEditingController(
       text: DateFormat('yyyy-MM-dd').format(foundCheque.receivedDate));
   final TextEditingController dueDateController = TextEditingController(
       text: DateFormat('yyyy-MM-dd').format(foundCheque.dueDate));
   final TextEditingController chequeImageUriController =
       TextEditingController(text: foundCheque.chequeImageUri);
+
+  // Initialize dropdowns with the foundCheque values
   String selectedBank = foundCheque.bankName;
   String selectedStatus = foundCheque.status;
 
@@ -477,6 +466,7 @@ void _showChequeDetailsDialog(
     "Cashed",
     "Returned"
   ];
+
   showDialog(
     context: context,
     builder: (context) {
@@ -510,7 +500,7 @@ void _showChequeDetailsDialog(
                 options: statusList,
                 onChanged: (String? newValue) {
                   if (newValue != null) {
-                    selectedBank = newValue;
+                    selectedStatus = newValue;
                   }
                 },
               ),
@@ -555,8 +545,8 @@ void _showChequeDetailsDialog(
                 chequeNo: foundCheque.chequeNo,
                 amount: double.tryParse(amountController.text) ?? 0,
                 drawer: drawerController.text,
-                bankName: bankController.text,
-                status: statusController.text,
+                bankName: selectedBank,
+                status: selectedStatus,
                 receivedDate: DateTime.parse(receivedDateController.text),
                 dueDate: DateTime.parse(dueDateController.text),
                 chequeImageUri: chequeImageUriController.text,
